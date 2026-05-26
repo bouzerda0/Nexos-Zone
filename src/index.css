@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 15% 4%;
+    --foreground: 0 0% 100%;
+    --card: 240 15% 6%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 15% 6%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 252 73% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 10% 12%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 10% 15%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 240 10% 15%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 10% 15%;
+    --input: 240 10% 15%;
+    --ring: 252 73% 60%;
+    --radius: 0.75rem;
+    --chart-1: 252 73% 60%;
+    --chart-2: 173 82% 46%;
+    --chart-3: 43 96% 70%;
+    --chart-4: 16 76% 55%;
+    --chart-5: 160 84% 75%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    background: #0A0A0F;
+    color: #FFFFFF;
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-modal {
+    background: rgba(15, 15, 22, 0.95);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  }
+
+  .module-header-border-transit {
+    border-left: 4px solid #00CEC9;
+  }
+
+  .module-header-border-habitat {
+    border-left: 4px solid #FDCB6E;
+  }
+
+  .module-header-border-pulse {
+    border-left: 4px solid #E17055;
+  }
+
+  .module-header-border-forum {
+    border-left: 4px solid #A29BFE;
+  }
+
+  .module-header-border-spirit {
+    border-left: 4px solid #55EFC4;
+  }
+
+  .filter-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 8px 20px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-pill:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .filter-pill.active-transit {
+    background: rgba(0, 206, 201, 0.15);
+    border-color: rgba(0, 206, 201, 0.4);
+    color: #00CEC9;
+  }
+
+  .filter-pill.active-habitat {
+    background: rgba(253, 203, 110, 0.15);
+    border-color: rgba(253, 203, 110, 0.4);
+    color: #FDCB6E;
+  }
+
+  .filter-pill.active-pulse {
+    background: rgba(225, 112, 85, 0.15);
+    border-color: rgba(225, 112, 85, 0.4);
+    color: #E17055;
+  }
+
+  .filter-pill.active-forum {
+    background: rgba(162, 155, 254, 0.15);
+    border-color: rgba(162, 155, 254, 0.4);
+    color: #A29BFE;
+  }
+
+  .filter-pill.active-spirit {
+    background: rgba(85, 239, 196, 0.15);
+    border-color: rgba(85, 239, 196, 0.4);
+    color: #55EFC4;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
