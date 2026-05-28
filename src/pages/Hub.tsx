@@ -59,7 +59,7 @@ export default function Hub() {
         className="text-center mb-12"
       >
         <h1 className="text-3xl font-semibold text-white mb-2">
-          Welcome back, {user?.name || "Student"}
+          Welcome back, {user?.login || "Student"}
         </h1>
         <p className="text-base" style={{ color: "rgba(255,255,255,0.5)" }}>
           Choose your Nexus module

@@ -4,8 +4,8 @@ import { LogOut, Home } from "lucide-react";
 
 export default function Header() {
   const { user, logout } = useAuth();
-  const initials = user?.name
-    ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+  const initials = user?.login
+    ? user.login.toUpperCase().slice(0, 2)
     : "?";
 
   return (
@@ -31,10 +31,10 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          {user?.avatar ? (
+          {user?.avatarUrl ? (
             <img
-              src={user.avatar}
-              alt={user.name || "User"}
+              src={user.avatarUrl}
+              alt={user.login || "User"}
               className="w-8 h-8 rounded-full object-cover"
             />
           ) : (
@@ -44,7 +44,7 @@ export default function Header() {
             </div>
           )}
           <span className="text-sm font-medium hidden sm:block" style={{ color: "rgba(255,255,255,0.8)" }}>
-            {user?.name || "User"}
+            {user?.login || "User"}
           </span>
         </div>
 
