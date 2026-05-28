@@ -27,7 +27,7 @@ export default function Transit() {
   const utils = trpc.useUtils();
 
   const queryInput =
-    filter === "mine" ? { mine: true } : filter !== "all" ? { direction: filter as "aller" | "retour" } : undefined;
+    filter === "mine" ? { mine: true } : filter !== "all" ? { direction: filter as "aller" | "retour" } : {};
 
   const { data: posts, isLoading } = trpc.transit.list.useQuery(queryInput);
   const bookMutation = trpc.transit.book.useMutation({
