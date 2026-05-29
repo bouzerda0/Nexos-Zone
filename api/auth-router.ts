@@ -11,15 +11,64 @@ import { getDb } from "./queries/connection";
 import { users } from "@db/schema";
 
 export const authRouter = createRouter({
-  me: authedQuery.query((opts) => opts.ctx.user),
-  
+  me: authedQuery.query(async ({ ctx }) => {
+    let finalAvatarHash = ctx.user.avatarUrl;
+
+    // If we don't have the hash in DB, try to fetch it dynamically once
+    if (!finalAvatarHash) {
+      try {
+        const domain = env.intraDomain;
+        const gqlRes = await fetch(`${domain}/api/graphql-engine/v1/graphql`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: `
+              query {
+                user(where: {login: {_eq: "${ctx.user.login}"}}) {
+                  attrs
+                }
+              }
+            `
+          })
+        });
+
+        if (gqlRes.ok) {
+          const gqlData = await gqlRes.json() as any;
+          const intraUser = gqlData?.data?.user?.[0];
+          if (intraUser) {
+            let parsedAttrs = intraUser.attrs;
+            if (typeof parsedAttrs === "string") {
+              try { parsedAttrs = JSON.parse(parsedAttrs); } catch { parsedAttrs = {}; }
+            }
+            const rawAvatar = parsedAttrs?.avatarUrl || parsedAttrs?.avatar || parsedAttrs?.picture || parsedAttrs?.image || null;
+
+            if (rawAvatar) {
+              const hash = rawAvatar.includes("avatars/") 
+                ? rawAvatar.split("avatars/").pop() 
+                : rawAvatar.replace(/^\/(git\/avatars\/)?/, "");
+              finalAvatarHash = hash;
+
+              // Persist it to DB so we don't have to fetch again
+              const db = getDb();
+              await db.update(users).set({ avatarUrl: hash }).where(eq(users.id, ctx.user.id));
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch attrs dynamically in auth.me:", err);
+      }
+    }
+
+    return { ...ctx.user, avatarUrl: finalAvatarHash };
+  }),
+
   login: publicQuery
     .input(z.object({ identifier: z.string(), password: z.string() }))
     .mutation(async ({ input, ctx }) => {
       // 1. Validate ENV Var
       // @ts-ignore - import.meta.env might not exist in all node environments
       const domain = process.env.VITE_INTRA_DOMAIN || process.env.INTRA_DOMAIN || import.meta.env?.VITE_INTRA_DOMAIN;
-      
+
       if (!domain) {
         console.error("Auth Error: INTRA_DOMAIN or VITE_INTRA_DOMAIN is missing in environment variables");
         throw new TRPCError({
@@ -33,7 +82,7 @@ export const authRouter = createRouter({
 
       // 2. Basic Auth to signin
       const encodedCredentials = Buffer.from(`${input.identifier}:${input.password}`, "utf-8").toString("base64");
-      
+
       let signinRes: Response;
       try {
         signinRes = await fetch(targetUrl, {
@@ -57,7 +106,7 @@ export const authRouter = createRouter({
       if (!signinRes.ok) {
         const errorText = await signinRes.text();
         console.error("Zone01 API Error:", signinRes.status, errorText.slice(0, 500));
-        
+
         throw new TRPCError({
           code: "UNAUTHORIZED",
           message: "Invalid credentials",
@@ -110,7 +159,7 @@ export const authRouter = createRouter({
 
       const gqlData = await gqlRes.json() as any;
       const intraUser = gqlData?.data?.user?.[0] || gqlData?.data?.user;
-      
+
       if (!intraUser || !intraUser.id) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
@@ -118,26 +167,43 @@ export const authRouter = createRouter({
         });
       }
 
-      const avatarUrl = intraUser.attrs?.avatar || intraUser.attrs?.picture || intraUser.attrs?.image || null;
+      let parsedAttrs = intraUser.attrs;
+      if (typeof parsedAttrs === "string") {
+        try {
+          parsedAttrs = JSON.parse(parsedAttrs);
+        } catch {
+          parsedAttrs = {};
+        }
+      }
+
+      console.log("INTRA USER ATTRS:", typeof parsedAttrs, parsedAttrs);
+
+      // Extract 01-edu avatar hash
+      const rawAvatar = parsedAttrs?.avatarUrl || parsedAttrs?.avatar || parsedAttrs?.picture || parsedAttrs?.image || null;
+      const avatarHash = rawAvatar 
+        ? (rawAvatar.includes("avatars/") ? rawAvatar.split("avatars/").pop() : rawAvatar.replace(/^\/(git\/avatars\/)?/, "")) 
+        : null;
 
       const db = getDb();
 
       // Upsert
       let [localUser] = await db.select().from(users).where(eq(users.intraId, intraUser.id));
-      
+
       if (localUser) {
-        await db.update(users).set({
+        const updateData = {
           login: intraUser.login,
           email: intraUser.email || localUser.email,
-          avatarUrl,
+          avatarUrl: avatarHash,
           lastSignInAt: new Date(),
-        }).where(eq(users.id, localUser.id));
+        };
+        await db.update(users).set(updateData).where(eq(users.id, localUser.id));
+        localUser = { ...localUser, ...updateData }; // Sync in-memory user with updated DB values to send to client
       } else {
         const [insertResult] = await db.insert(users).values({
           intraId: intraUser.id,
           login: intraUser.login,
           email: intraUser.email || "no-email@local",
-          avatarUrl,
+          avatarUrl: avatarHash,
         });
         const [newUser] = await db.select().from(users).where(eq(users.id, insertResult.insertId));
         localUser = newUser;

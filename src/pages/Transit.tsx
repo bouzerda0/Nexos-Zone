@@ -147,7 +147,8 @@ export default function Transit() {
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="glass-card p-6 flex flex-col gap-4"
+                whileHover={{ y: -4, boxShadow: "0 12px 40px rgba(0, 206, 201, 0.15)", borderColor: "rgba(0, 206, 201, 0.4)" }}
+                className="glass-card p-6 flex flex-col gap-4 transition-all duration-300"
               >
                 {/* Top row */}
                 <div className="flex items-center justify-between">
@@ -182,12 +183,16 @@ export default function Transit() {
 
                 {/* Driver */}
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                    style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                    {post.user?.name?.[0]?.toUpperCase() || "?"}
-                  </div>
+                  {post.user?.avatarUrl ? (
+                    <img src={post.user.avatarUrl} alt={post.user?.login || "Driver"} className="w-7 h-7 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                      style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
+                      {post.user?.login?.[0]?.toUpperCase() || "?"}
+                    </div>
+                  )}
                   <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
-                    {post.user?.name || "Unknown"}
+                    {post.user?.login || "Unknown"}
                   </span>
                 </div>
 
@@ -195,14 +200,26 @@ export default function Transit() {
                 <div className="flex items-center gap-2">
                   <Users size={14} color="rgba(255,255,255,0.5)" />
                   <div className="flex -space-x-2">
-                    {post.bookings?.slice(0, 4).map((b, i) => (
-                      <div key={i} className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-semibold text-white"
-                        style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)", borderColor: "#0A0A0F" }}>
-                        {b.user?.name?.[0]?.toUpperCase() || "?"}
-                      </div>
-                    ))}
+                    {Array.from({ length: 4 }).map((_, i) => {
+                      const b = post.bookings?.[i];
+                      if (b) {
+                        return b.user?.avatarUrl ? (
+                          <img key={i} src={b.user.avatarUrl} alt={b.user?.login || "User"} className="w-6 h-6 rounded-full border-2 object-cover" style={{ borderColor: "#0A0A0F" }} />
+                        ) : (
+                          <div key={i} className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-semibold text-white"
+                            style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)", borderColor: "#0A0A0F" }}>
+                            {b.user?.login?.[0]?.toUpperCase() || "?"}
+                          </div>
+                        );
+                      }
+                      return (
+                        <div key={i} className="w-6 h-6 rounded-full border-2 border-dashed flex items-center justify-center"
+                          style={{ borderColor: "rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.02)" }}>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <span className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <span className="text-xs ml-1" style={{ color: "rgba(255,255,255,0.5)" }}>
                     {seatCount}/4
                   </span>
                 </div>
@@ -250,7 +267,7 @@ export default function Transit() {
 
       {/* Create Modal */}
       <AnimatePresence>
-        {showCreate && <CreateRideModal onClose={() => setShowCreate(false)} />}
+        {showCreate && <CreateRideModal onClose={() => setShowCreate(false)} activeFilterInput={queryInput} />}
       </AnimatePresence>
     </div>
   );
@@ -278,8 +295,10 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
   );
 }
 
-function CreateRideModal({ onClose }: { onClose: () => void }) {
+function CreateRideModal({ onClose, activeFilterInput }: { onClose: () => void, activeFilterInput: any }) {
   const utils = trpc.useUtils();
+  const { user } = useAuth();
+  const [formError, setFormError] = useState<string | null>(null);
   const [form, setForm] = useState({
     direction: "aller" as "aller" | "retour",
     fromLocation: "",
@@ -290,16 +309,63 @@ function CreateRideModal({ onClose }: { onClose: () => void }) {
   });
 
   const createMutation = trpc.transit.create.useMutation({
-    onSuccess: () => {
+    onMutate: async (newRide) => {
+      await utils.transit.list.cancel();
+      const previousPosts = utils.transit.list.getData(activeFilterInput);
+      
+      if (previousPosts && user) {
+        const matchesFilter =
+          !activeFilterInput ||
+          (activeFilterInput.mine === true) ||
+          (activeFilterInput.direction === newRide.direction);
+
+        if (matchesFilter) {
+          const optimisticPost = {
+            id: Date.now(),
+            userId: user.id,
+            direction: newRide.direction,
+            fromLocation: newRide.fromLocation,
+            toLocation: newRide.toLocation,
+            departureTime: newRide.departureTime,
+            meetingPoint: newRide.meetingPoint,
+            notes: newRide.notes || null,
+            status: "open" as const,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            user,
+            bookings: [],
+            _count: { bookings: 0 },
+          };
+          
+          utils.transit.list.setData(activeFilterInput, [optimisticPost, ...previousPosts]);
+        }
+      }
+      return { previousPosts };
+    },
+    onError: (err, newRide, context) => {
+      if (context?.previousPosts) {
+        utils.transit.list.setData(activeFilterInput, context.previousPosts);
+      }
+      setFormError(err.message || "Failed to create ride. Please try again.");
+    },
+    onSettled: () => {
       utils.transit.list.invalidate();
+    },
+    onSuccess: () => {
       onClose();
     },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.fromLocation || !form.toLocation || !form.departureTime || !form.meetingPoint) return;
-    createMutation.mutate(form);
+    setFormError(null);
+    if (!form.fromLocation || !form.toLocation || !form.departureTime || !form.meetingPoint) {
+      setFormError("Please fill in all required fields.");
+      return;
+    }
+    // Convert datetime-local value to ISO string for the backend
+    const isoTime = new Date(form.departureTime).toISOString();
+    createMutation.mutate({ ...form, departureTime: isoTime });
   };
 
   return (
@@ -404,6 +470,14 @@ function CreateRideModal({ onClose }: { onClose: () => void }) {
               placeholder="Any additional info..."
             />
           </div>
+
+          {formError && (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm"
+              style={{ background: "rgba(225, 112, 85, 0.12)", border: "1px solid rgba(225, 112, 85, 0.3)", color: "#E17055" }}>
+              <AlertCircle size={14} />
+              <span>{formError}</span>
+            </div>
+          )}
 
           <button
             type="submit"

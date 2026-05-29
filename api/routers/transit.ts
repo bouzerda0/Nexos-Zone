@@ -70,7 +70,7 @@ export const transitRouter = createRouter({
         direction: z.enum(["aller", "retour"]),
         fromLocation: z.string().min(1),
         toLocation: z.string().min(1),
-        departureTime: z.string().datetime(),
+        departureTime: z.string().min(1),
         meetingPoint: z.string().min(1),
         notes: z.string().optional(),
       })

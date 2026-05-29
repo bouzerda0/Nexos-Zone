@@ -13,6 +13,7 @@ const Habitat = lazy(() => import("@/pages/Habitat"));
 const Pulse = lazy(() => import("@/pages/Pulse"));
 const Forum = lazy(() => import("@/pages/Forum"));
 const SpiritArena = lazy(() => import("@/pages/SpiritArena"));
+const Zone01Profile = lazy(() => import("@/pages/Zone01Profile"));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -103,6 +104,16 @@ export default function App() {
           <ProtectedRoute>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 rounded-full border-2 border-transparent animate-spin" style={{ borderTopColor: "#55EFC4" }} /></div>}>
               <SpiritArena />
+            </Suspense>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/zone01-profile"
+        element={
+          <ProtectedRoute>
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 rounded-full border-2 border-transparent animate-spin" style={{ borderTopColor: "#00B4D8" }} /></div>}>
+              <Zone01Profile />
             </Suspense>
           </ProtectedRoute>
         }

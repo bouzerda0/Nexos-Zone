@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
-import { Car, Home, Utensils, MessageSquare, Activity } from "lucide-react";
+import { Car, Home, Utensils, MessageSquare, Activity, GraduationCap } from "lucide-react";
 
 const modules = [
   {
@@ -43,6 +43,14 @@ const modules = [
     icon: Activity,
     accent: "#55EFC4",
     path: "/spirit-arena",
+  },
+  {
+    id: "zone01",
+    name: "Zone 01 Profile",
+    description: "Your XP stats & profile",
+    icon: GraduationCap,
+    accent: "#00B4D8",
+    path: "/zone01-profile",
   },
 ];
 

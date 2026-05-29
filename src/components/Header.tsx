@@ -1,12 +1,20 @@
 import { Link } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { LogOut, Home } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 export default function Header() {
   const { user, logout } = useAuth();
   const initials = user?.login
     ? user.login.toUpperCase().slice(0, 2)
     : "?";
+
+  const hash = user?.avatarUrl;
+  const avatarUrl = hash
+    ? hash.startsWith("http")
+      ? hash
+      : "https://learn.zone01oujda.ma/git/avatars/" + hash
+    : undefined;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-16 flex items-center justify-between px-6"
@@ -31,18 +39,19 @@ export default function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          {user?.avatarUrl ? (
-            <img
-              src={user.avatarUrl}
-              alt={user.login || "User"}
-              className="w-8 h-8 rounded-full object-cover"
+          <Avatar className="w-8 h-8">
+            <AvatarImage 
+              src={avatarUrl} 
+              alt={user?.login || "User"} 
+              className="object-cover"
             />
-          ) : (
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-              style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
+            <AvatarFallback 
+              className="text-xs font-semibold text-white"
+              style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}
+            >
               {initials}
-            </div>
-          )}
+            </AvatarFallback>
+          </Avatar>
           <span className="text-sm font-medium hidden sm:block" style={{ color: "rgba(255,255,255,0.8)" }}>
             {user?.login || "User"}
           </span>
