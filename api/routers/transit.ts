@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createRouter, authedQuery } from "../middleware";
 import { getDb } from "../queries/connection";
 import { transitPosts, transitBookings } from "@db/schema";
@@ -11,39 +12,59 @@ export const transitRouter = createRouter({
         direction: z.enum(["aller", "retour"]).optional(),
         status: z.enum(["open", "full", "completed", "cancelled"]).optional(),
         mine: z.boolean().optional(),
-      }).optional()
+      }).optional().default({})
     )
     .query(async ({ ctx, input }) => {
-      const db = getDb();
-      const conditions = [];
+      try {
+        const db = getDb();
+        const conditions = [];
 
-      if (input?.direction) {
-        conditions.push(eq(transitPosts.direction, input.direction));
-      }
-      if (input?.status) {
-        conditions.push(eq(transitPosts.status, input.status));
-      }
-      if (input?.mine) {
-        conditions.push(eq(transitPosts.userId, ctx.user.id));
-      }
+        if (input?.direction) {
+          conditions.push(eq(transitPosts.direction, input.direction));
+        }
+        if (input?.status) {
+          conditions.push(eq(transitPosts.status, input.status));
+        }
+        if (input?.mine) {
+          conditions.push(eq(transitPosts.userId, ctx.user.id));
+        }
 
-      const where = conditions.length > 0 ? and(...conditions) : undefined;
+        const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const posts = await db.query.transitPosts.findMany({
-        where,
-        with: {
-          user: true,
-          bookings: {
-            with: { user: true },
+        const posts = await db.query.transitPosts.findMany({
+          where,
+          with: {
+            user: true,
+            bookings: {
+              with: { user: true },
+            },
           },
-        },
-        orderBy: [desc(transitPosts.createdAt)],
-      });
+          orderBy: [desc(transitPosts.createdAt)],
+        });
 
-      return posts.map((post) => ({
-        ...post,
-        _count: { bookings: post.bookings.length },
-      }));
+        return posts.map((post) => ({
+          ...post,
+          user: post.user ? {
+            ...post.user,
+            avatarUrl: post.user.avatarUrl || null,
+          } : null,
+          bookings: post.bookings.map((booking) => ({
+            ...booking,
+            user: booking.user ? {
+              ...booking.user,
+              avatarUrl: booking.user.avatarUrl || null,
+            } : null,
+          })),
+          _count: { bookings: post.bookings.length },
+        }));
+      } catch (error) {
+        console.error("Error in transit.list:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch transit posts",
+          cause: error,
+        });
+      }
     }),
 
   getById: authedQuery

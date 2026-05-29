@@ -3,17 +3,7 @@ import { Link } from "react-router";
 import { trpc } from "@/providers/trpc";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Car,
-  ArrowRight,
-  Clock,
-  MapPin,
-  Plus,
-  X,
-  CheckCircle2,
-  Users,
-  AlertCircle,
-} from "lucide-react";
+import { Car, ArrowRight, Clock, MapPin, Plus, X, CircleCheck as CheckCircle2, Users, CircleAlert as AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 
 type FilterType = "all" | "aller" | "retour" | "mine";
@@ -27,7 +17,7 @@ export default function Transit() {
   const utils = trpc.useUtils();
 
   const queryInput =
-    filter === "mine" ? { mine: true } : filter !== "all" ? { direction: filter as "aller" | "retour" } : undefined;
+    filter === "mine" ? { mine: true } : filter !== "all" ? { direction: filter as "aller" | "retour" } : {};
 
   const { data: posts, isLoading } = trpc.transit.list.useQuery(queryInput);
   const bookMutation = trpc.transit.book.useMutation({
