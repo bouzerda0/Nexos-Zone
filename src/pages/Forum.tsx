@@ -14,11 +14,13 @@ import {
   Send,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useTheme } from "@/components/ThemeProvider";
 
 type FilterType = "all" | "meme" | "poll" | "discussion";
 type CreateType = "meme" | "poll" | "discussion";
 
 export default function Forum() {
+  const { theme } = useTheme();
   const [filter, setFilter] = useState<FilterType>("all");
   const [showCreate, setShowCreate] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -58,21 +60,21 @@ export default function Forum() {
             className="fixed top-20 right-6 z-50 glass-card px-4 py-3 flex items-center gap-2"
             style={{ borderLeft: `3px solid ${toast.type === "success" ? "#55EFC4" : "#E17055"}` }}>
             {toast.type === "success" ? <CheckCircle2 size={16} color="#55EFC4" /> : <AlertCircle size={16} color="#E17055" />}
-            <span className="text-sm text-white">{toast.message}</span>
+            <span className="text-sm text-foreground">{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="mb-8">
-        <div className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
-          <Link to="/hub" className="hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}>Hub</Link>
+        <div className="text-sm mb-2" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
+          <Link to="/hub" className="hover:text-foreground transition-colors" style={{ color: "hsl(var(--foreground) / 0.4)" }}>Hub</Link>
           <span className="mx-2">/</span>
           <span>Forum</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white module-header-border-forum pl-4">Nexus Forum</h1>
-            <p className="text-base mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>Memes, polls & campus culture</p>
+            <h1 className="text-4xl font-bold text-foreground module-header-border-forum pl-4">Nexus Forum</h1>
+            <p className="text-base mt-2" style={{ color: "hsl(var(--foreground) / 0.5)" }}>Memes, polls & campus culture</p>
           </div>
           <button onClick={() => setShowCreate(true)}
             className="flex items-center gap-2 px-5 h-11 rounded-xl font-medium text-sm transition-all hover:shadow-lg"
@@ -105,33 +107,33 @@ export default function Forum() {
                   {post.user?.name?.[0]?.toUpperCase() || "?"}
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-white">{post.user?.name || "Anonymous"}</div>
-                  <div className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <div className="text-sm font-medium text-foreground">{post.user?.name || "Anonymous"}</div>
+                  <div className="text-xs" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
                     @{post.user?.email?.split("@")[0] || "user"} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                   </div>
                 </div>
                 <span className="ml-auto text-xs px-2 py-1 rounded-md font-medium"
-                  style={{ background: post.type === "meme" ? "rgba(162,155,254,0.15)" : post.type === "poll" ? "rgba(0,206,201,0.15)" : "rgba(255,255,255,0.06)",
-                    color: post.type === "meme" ? "#A29BFE" : post.type === "poll" ? "#00CEC9" : "rgba(255,255,255,0.5)" }}>
+                  style={{ background: post.type === "meme" ? "rgba(162,155,254,0.15)" : post.type === "poll" ? "rgba(0,206,201,0.15)" : "hsl(var(--foreground) / 0.06)",
+                    color: post.type === "meme" ? "#A29BFE" : post.type === "poll" ? "#00CEC9" : "hsl(var(--foreground) / 0.5)" }}>
                   {post.type === "meme" ? "Meme" : post.type === "poll" ? "Poll" : "Discussion"}
                 </span>
               </div>
 
               {/* Content */}
-              <h3 className="text-lg font-semibold text-white mb-2">{post.title}</h3>
-              <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.8)" }}>{post.content}</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{post.title}</h3>
+              <p className="text-sm mb-3" style={{ color: "hsl(var(--foreground) / 0.8)" }}>{post.content}</p>
 
               {/* Meme image */}
               {post.imageUrl && (
                 <div className="mb-3 rounded-xl overflow-hidden">
-                  <img src={post.imageUrl} alt={post.title} className="w-full max-h-96 object-contain" style={{ background: "rgba(255,255,255,0.03)" }} />
+                  <img src={post.imageUrl} alt={post.title} className="w-full max-h-96 object-contain" style={{ background: "hsl(var(--foreground) / 0.03)" }} />
                 </div>
               )}
 
               {/* Poll widget */}
               {post.type === "poll" && post.poll && (
-                <div className="mb-3 p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)" }}>
-                  <p className="text-sm font-medium text-white mb-3">{post.poll.question}</p>
+                <div className="mb-3 p-4 rounded-xl" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
+                  <p className="text-sm font-medium text-foreground mb-3">{post.poll.question}</p>
                   <div className="flex flex-col gap-2">
                     {post.poll.options.map((option) => {
                       const percentage = post.poll!.totalVotes > 0
@@ -145,11 +147,11 @@ export default function Forum() {
                           }}
                           disabled={post.poll!.hasVoted || voteMutation.isPending}
                           className="relative h-10 rounded-lg overflow-hidden text-left px-3 flex items-center transition-all disabled:cursor-default"
-                          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                          style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}>
                           {post.poll!.hasVoted && (
                             <div className="absolute inset-0 rounded-lg transition-all" style={{ width: `${percentage}%`, background: "rgba(162,155,254,0.15)" }} />
                           )}
-                          <span className="relative z-10 text-sm text-white flex-1">{option.optionText}</span>
+                          <span className="relative z-10 text-sm text-foreground flex-1">{option.optionText}</span>
                           {post.poll!.hasVoted && (
                             <span className="relative z-10 text-xs font-medium" style={{ color: "#A29BFE" }}>{percentage}%</span>
                           )}
@@ -157,7 +159,7 @@ export default function Forum() {
                       );
                     })}
                   </div>
-                  <p className="text-xs mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-xs mt-2" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
                     {post.poll.totalVotes} vote{post.poll.totalVotes !== 1 ? "s" : ""}
                     {post.poll.hasVoted ? " · You voted" : " · Click to vote"}
                   </p>
@@ -165,10 +167,10 @@ export default function Forum() {
               )}
 
               {/* Actions */}
-              <div className="flex items-center gap-4 pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex items-center gap-4 pt-3" style={{ borderTop: "1px solid hsl(var(--foreground) / 0.06)" }}>
                 <button onClick={() => setExpandedComments(expandedComments === post.id ? null : post.id)}
-                  className="flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-                  style={{ color: "rgba(255,255,255,0.5)" }}>
+                  className="flex items-center gap-1.5 text-sm transition-colors hover:text-foreground"
+                  style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                   <MessageCircle size={16} />
                   <span>{post._count.comments} comment{post._count.comments !== 1 ? "s" : ""}</span>
                 </button>
@@ -178,7 +180,7 @@ export default function Forum() {
               <AnimatePresence>
                 {expandedComments === post.id && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="mt-4 pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                    <div className="mt-4 pt-4" style={{ borderTop: "1px solid hsl(var(--foreground) / 0.06)" }}>
                       {/* Comment input */}
                       <div className="flex gap-2 mb-4">
                         <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)}
@@ -187,8 +189,8 @@ export default function Forum() {
                               commentMutation.mutate({ postId: post.id, content: commentText.trim() });
                             }
                           }}
-                          className="flex-1 h-9 rounded-lg px-3 text-sm text-white outline-none"
-                          style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+                          className="flex-1 h-9 rounded-lg px-3 text-sm text-foreground outline-none"
+                          style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}
                           placeholder="Add a comment..." />
                         <button onClick={() => {
                           if (commentText.trim()) commentMutation.mutate({ postId: post.id, content: commentText.trim() });
@@ -208,12 +210,12 @@ export default function Forum() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-white">{comment.user?.name}</span>
-                                <span className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+                                <span className="text-sm font-medium text-foreground">{comment.user?.name}</span>
+                                <span className="text-xs" style={{ color: "hsl(var(--foreground) / 0.3)" }}>
                                   {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                                 </span>
                               </div>
-                              <p className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{comment.content}</p>
+                              <p className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{comment.content}</p>
                             </div>
                           </div>
                         ))}
@@ -230,8 +232,8 @@ export default function Forum() {
           <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(162,155,254,0.1)" }}>
             <MessageSquare size={40} color="rgba(162,155,254,0.4)" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No posts yet</h3>
-          <p className="text-sm mb-6 text-center" style={{ color: "rgba(255,255,255,0.5)" }}>Be the first to share something with the community!</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">No posts yet</h3>
+          <p className="text-sm mb-6 text-center" style={{ color: "hsl(var(--foreground) / 0.5)" }}>Be the first to share something with the community!</p>
           <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-5 h-11 rounded-xl font-medium text-sm"
             style={{ background: "#A29BFE", color: "#0A0A0F" }}><Plus size={18} />New Post</button>
         </div>
@@ -246,10 +248,10 @@ export default function Forum() {
 
 function SkeletonPost() {
   return (
-    <div className="glass-card p-6 animate-pulse" style={{ background: "rgba(255,255,255,0.03)" }}>
-      <div className="h-4 rounded w-1/4 mb-3" style={{ background: "rgba(255,255,255,0.05)" }} />
-      <div className="h-3 rounded w-3/4 mb-2" style={{ background: "rgba(255,255,255,0.05)" }} />
-      <div className="h-3 rounded w-1/2" style={{ background: "rgba(255,255,255,0.05)" }} />
+    <div className="glass-card p-6 animate-pulse" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
+      <div className="h-4 rounded w-1/4 mb-3" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+      <div className="h-3 rounded w-3/4 mb-2" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+      <div className="h-3 rounded w-1/2" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
     </div>
   );
 }
@@ -284,8 +286,8 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
     createMutation.mutate({ title, content, type, imageUrl: imageUrl || undefined, poll });
   };
 
-  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-white outline-none";
-  const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" };
+  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none";
+  const inputStyle = { background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -294,8 +296,8 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
         className="glass-modal w-full max-w-lg p-6 my-8" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">New Post</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
+          <h2 className="text-xl font-semibold text-foreground">New Post</h2>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
         </div>
 
         {/* Type selector */}
@@ -304,9 +306,9 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
             <button key={t} onClick={() => setType(t)}
               className="flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-medium transition-all"
               style={{
-                background: type === t ? "rgba(162,155,254,0.15)" : "rgba(255,255,255,0.06)",
-                border: `1px solid ${type === t ? "rgba(162,155,254,0.4)" : "rgba(255,255,255,0.08)"}`,
-                color: type === t ? "#A29BFE" : "rgba(255,255,255,0.5)",
+                background: type === t ? "rgba(162,155,254,0.15)" : "hsl(var(--foreground) / 0.06)",
+                border: `1px solid ${type === t ? "rgba(162,155,254,0.4)" : "hsl(var(--foreground) / 0.08)"}`,
+                color: type === t ? "#A29BFE" : "hsl(var(--foreground) / 0.5)",
               }}>
               {t === "meme" ? <Image size={18} /> : t === "poll" ? <BarChart3 size={18} /> : <MessageSquare size={18} />}
               {t === "meme" ? "Meme" : t === "poll" ? "Poll" : "Discussion"}
@@ -316,12 +318,12 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Title</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Title</label>
             <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} style={inputStyle} placeholder="Give your post a title" />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>
               {type === "meme" ? "Caption" : type === "poll" ? "Description" : "Body"}
             </label>
             <textarea value={content} onChange={(e) => setContent(e.target.value)} className={`${inputClass} h-24 py-2 resize-none`} style={inputStyle}
@@ -330,7 +332,7 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
 
           {type === "meme" && (
             <div>
-              <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Image URL</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Image URL</label>
               <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} className={inputClass} style={inputStyle} placeholder="Paste an image URL" />
             </div>
           )}
@@ -338,11 +340,11 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
           {type === "poll" && (
             <>
               <div>
-                <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Poll Question</label>
+                <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Poll Question</label>
                 <input type="text" value={pollQuestion} onChange={(e) => setPollQuestion(e.target.value)} className={inputClass} style={inputStyle} placeholder="Ask a question..." />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Options</label>
+                <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Options</label>
                 <div className="flex flex-col gap-2">
                   {pollOptions.map((opt, i) => (
                     <input key={i} type="text" value={opt} onChange={(e) => {
@@ -352,7 +354,7 @@ function CreateForumModal({ onClose, setToast }: { onClose: () => void; setToast
                     }} className={inputClass} style={inputStyle} placeholder={`Option ${i + 1}`} />
                   ))}
                   <button type="button" onClick={() => setPollOptions([...pollOptions, ""])}
-                    className="text-sm py-1 transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    className="text-sm py-1 transition-colors hover:text-foreground" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                     + Add Option
                   </button>
                 </div>

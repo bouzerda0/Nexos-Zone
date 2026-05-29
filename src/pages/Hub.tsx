@@ -66,10 +66,10 @@ export default function Hub() {
         transition={{ duration: 0.5 }}
         className="text-center mb-12"
       >
-        <h1 className="text-3xl font-semibold text-white mb-2">
+        <h1 className="text-3xl font-semibold mb-2" style={{ color: "hsl(var(--foreground))" }}>
           Welcome back, {user?.login || "Student"}
         </h1>
-        <p className="text-base" style={{ color: "rgba(255,255,255,0.5)" }}>
+        <p className="text-base" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
           Choose your Nexus module
         </p>
       </motion.div>
@@ -107,10 +107,10 @@ export default function Hub() {
                 <Icon size={32} color={module.accent} strokeWidth={1.5} />
               </div>
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-white mb-1">
+                <h3 className="text-lg font-semibold mb-1" style={{ color: "hsl(var(--foreground))" }}>
                   {module.name}
                 </h3>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p className="text-xs" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                   {module.description}
                 </p>
               </div>

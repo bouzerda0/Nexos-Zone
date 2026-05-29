@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router";
 import { lazy, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { LOGIN_PATH } from "@/const";
-import ShaderBackground from "@/components/ShaderBackground";
+import InteractiveBackground from "@/components/InteractiveBackground";
 import Header from "@/components/Header";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
@@ -20,7 +20,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0A0F" }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-10 h-10 rounded-full border-2 border-transparent animate-spin"
           style={{ borderTopColor: "#6C5CE7", borderRightColor: "#A29BFE" }} />
       </div>
@@ -33,8 +33,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <ShaderBackground />
-      <div className="relative z-10 min-h-screen" style={{ background: "rgba(10, 10, 15, 0.92)" }}>
+      <InteractiveBackground />
+
+      {/* Main Content Layer (z-10) */}
+      <div className="relative z-10 min-h-screen transition-colors duration-500 bg-transparent">
         <Header />
         <div className="pt-16">
           {children}

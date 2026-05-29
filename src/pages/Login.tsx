@@ -54,13 +54,13 @@ export default function Login() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="w-full max-w-md px-4"
       >
-        <Card className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl relative z-10 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+        <Card className="rounded-3xl border border-foreground/10 bg-card/40 backdrop-blur-xl shadow-2xl relative z-10 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-foreground/5 to-transparent pointer-events-none" />
           
           <CardHeader className="text-center pb-6 pt-8 flex flex-col items-center">
             {/* Branding Zone: Premium Logo Lockup */}
             <div className="flex items-center justify-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 ring-1 ring-white/10">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 ring-1 ring-foreground/10">
                 <Fingerprint className="w-6 h-6" />
               </div>
               <h1 className="text-3xl font-extrabold tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-br from-foreground to-foreground/50 drop-shadow-sm">
@@ -85,7 +85,7 @@ export default function Login() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   disabled={loginMutation.isPending}
-                  className="rounded-xl h-11 bg-white/5 backdrop-blur-sm border-white/10 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all"
+                  className="rounded-xl h-11 bg-foreground/5 backdrop-blur-sm border-foreground/10 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all"
                   required
                 />
               </div>
@@ -99,7 +99,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loginMutation.isPending}
-                  className="rounded-xl h-11 bg-white/5 backdrop-blur-sm border-white/10 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all"
+                  className="rounded-xl h-11 bg-foreground/5 backdrop-blur-sm border-foreground/10 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary/50 focus-visible:border-primary/50 transition-all"
                   required
                 />
               </div>

@@ -15,6 +15,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { Link } from "react-router";
+import { useTheme } from "@/components/ThemeProvider";
 
 // ── XP level calculation ─────────────────────────────────────────────
 function computeLevel(xp: number): { level: number; progress: number } {
@@ -84,11 +85,11 @@ function CredentialForm({
       <div
         className="p-8 rounded-3xl relative overflow-hidden"
         style={{
-          background: "rgba(255,255,255,0.04)",
+          background: "hsl(var(--foreground) / 0.04)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
           border: "1px solid rgba(0,180,216,0.15)",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)",
+          boxShadow: "0 24px 80px rgba(0,0,0,0.4), inset 0 1px 0 hsl(var(--foreground) / 0.05)",
         }}
       >
         {/* Glow accent */}
@@ -107,8 +108,8 @@ function CredentialForm({
             <Lock size={22} color="#00B4D8" />
           </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">Zone 01 Credentials</h2>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <h2 className="text-xl font-semibold text-foreground">Zone 01 Credentials</h2>
+            <p className="text-xs" style={{ color: "hsl(var(--foreground) / 0.45)" }}>
               Enter your Intra credentials to fetch your profile
             </p>
           </div>
@@ -122,7 +123,7 @@ function CredentialForm({
           className="flex flex-col gap-4"
         >
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <label className="text-xs font-medium" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
               Username / Email
             </label>
             <input
@@ -132,24 +133,24 @@ function CredentialForm({
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="your-login"
               autoComplete="username"
-              className="w-full px-4 py-3 rounded-xl text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200 focus:ring-2"
+              className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-foreground/30 outline-none transition-all duration-200 focus:ring-2"
               style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "hsl(var(--foreground) / 0.06)",
+                border: "1px solid hsl(var(--foreground) / 0.08)",
               }}
               onFocus={(e) => {
                 e.currentTarget.style.borderColor = "rgba(0,180,216,0.5)";
                 e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,180,216,0.1)";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                e.currentTarget.style.boxShadow = "none";
+                e.currentTarget.style.borderColor = "";
+                e.currentTarget.style.boxShadow = "";
               }}
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <label className="text-xs font-medium" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
               Password
             </label>
             <div className="relative">
@@ -160,24 +161,24 @@ function CredentialForm({
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full px-4 py-3 pr-11 rounded-xl text-sm text-white placeholder:text-white/30 outline-none transition-all duration-200"
+                className="w-full px-4 py-3 pr-11 rounded-xl text-sm text-foreground placeholder:text-foreground/30 outline-none transition-all duration-200"
                 style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "hsl(var(--foreground) / 0.06)",
+                  border: "1px solid hsl(var(--foreground) / 0.08)",
                 }}
                 onFocus={(e) => {
                   e.currentTarget.style.borderColor = "rgba(0,180,216,0.5)";
                   e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,180,216,0.1)";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                  e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.borderColor = "";
+                  e.currentTarget.style.boxShadow = "";
                 }}
               />
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
               >
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -256,11 +257,11 @@ function BentoCell({
       transition={{ duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] }}
       className={`relative rounded-3xl overflow-hidden ${className}`}
       style={{
-        background: "rgba(255,255,255,0.04)",
+        background: "hsl(var(--foreground) / 0.04)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        boxShadow: `0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.04)`,
+        border: "1px solid hsl(var(--foreground) / 0.07)",
+        boxShadow: `0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 hsl(var(--foreground) / 0.04)`,
       }}
       whileHover={{
         borderColor: "rgba(0,180,216,0.25)",
@@ -325,10 +326,10 @@ export default function Zone01Profile() {
           >
             <GraduationCap size={32} color="#00B4D8" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             Zone 01 Profile
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.45)" }} className="text-sm max-w-sm mx-auto">
+          <p style={{ color: "hsl(var(--foreground) / 0.45)" }} className="text-sm max-w-sm mx-auto">
             Authenticate with your Zone 01 Intra credentials to view your XP,
             level, and recent progress.
           </p>
@@ -348,8 +349,8 @@ export default function Zone01Profile() {
         >
           <Link
             to="/hub"
-            className="flex items-center gap-2 text-sm transition-colors hover:text-white"
-            style={{ color: "rgba(255,255,255,0.4)" }}
+            className="flex items-center gap-2 text-sm transition-colors hover:text-foreground"
+            style={{ color: "hsl(var(--foreground) / 0.4)" }}
           >
             <ArrowLeft size={14} />
             Back to Hub
@@ -374,14 +375,14 @@ export default function Zone01Profile() {
         <div className="flex items-center gap-3">
           <Link
             to="/hub"
-            className="flex items-center gap-1.5 text-sm transition-colors hover:text-white"
-            style={{ color: "rgba(255,255,255,0.4)" }}
+            className="flex items-center gap-1.5 text-sm transition-colors hover:text-foreground"
+            style={{ color: "hsl(var(--foreground) / 0.4)" }}
           >
             <ArrowLeft size={16} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-white">Student Dashboard</h1>
-            <p className="text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <h1 className="text-2xl font-bold text-foreground">Student Dashboard</h1>
+            <p className="text-xs" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
               Zone 01 Oujda — Intra Profile
             </p>
           </div>
@@ -394,17 +395,17 @@ export default function Zone01Profile() {
           }}
           className="text-xs px-4 py-2 rounded-xl transition-all duration-200"
           style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.08)",
-            color: "rgba(255,255,255,0.5)",
+            background: "hsl(var(--foreground) / 0.06)",
+            border: "1px solid hsl(var(--foreground) / 0.08)",
+            color: "hsl(var(--foreground) / 0.5)",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = "rgba(0,180,216,0.4)";
             e.currentTarget.style.color = "#00B4D8";
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-            e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+            e.currentTarget.style.borderColor = "";
+            e.currentTarget.style.color = "";
           }}
         >
           Refresh Data
@@ -466,7 +467,7 @@ export default function Zone01Profile() {
 
             {/* Name & Login */}
             <div>
-              <h2 className="text-2xl font-bold text-white mb-1">
+              <h2 className="text-2xl font-bold text-foreground mb-1">
                 {profileData.firstName} {profileData.lastName}
               </h2>
               <p className="text-sm font-mono" style={{ color: "#00B4D8" }}>
@@ -506,7 +507,7 @@ export default function Zone01Profile() {
         <BentoCell className="col-span-1 p-6" delay={0.1} glowColor="rgba(0,230,118,0.08)">
           <div className="flex flex-col h-full justify-between gap-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <span className="text-xs font-medium" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
                 Total XP
               </span>
               <div
@@ -517,10 +518,10 @@ export default function Zone01Profile() {
               </div>
             </div>
             <div>
-              <p className="text-3xl font-bold text-white tracking-tight">
+              <p className="text-3xl font-bold text-foreground tracking-tight">
                 <AnimatedXpCounter value={profileData.totalXp} />
               </p>
-              <p className="text-xs mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
+              <p className="text-xs mt-1" style={{ color: "hsl(var(--foreground) / 0.35)" }}>
                 {profileData.totalXp.toLocaleString()} bytes earned
               </p>
             </div>
@@ -531,7 +532,7 @@ export default function Zone01Profile() {
         <BentoCell className="col-span-1 p-6" delay={0.15} glowColor="rgba(162,155,254,0.08)">
           <div className="flex flex-col h-full justify-between gap-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium" style={{ color: "rgba(255,255,255,0.4)" }}>
+              <span className="text-xs font-medium" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
                 Current Level
               </span>
               <div
@@ -542,13 +543,13 @@ export default function Zone01Profile() {
               </div>
             </div>
             <div>
-              <p className="text-4xl font-bold text-white tracking-tight">
+              <p className="text-4xl font-bold text-foreground tracking-tight">
                 {level?.level ?? 0}
               </p>
               {/* Progress bar to next level */}
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  <span className="text-[10px]" style={{ color: "hsl(var(--foreground) / 0.35)" }}>
                     Progress
                   </span>
                   <span className="text-[10px] font-mono" style={{ color: "#A29BFE" }}>
@@ -557,7 +558,7 @@ export default function Zone01Profile() {
                 </div>
                 <div
                   className="w-full h-1.5 rounded-full overflow-hidden"
-                  style={{ background: "rgba(255,255,255,0.06)" }}
+                  style={{ background: "hsl(var(--foreground) / 0.06)" }}
                 >
                   <motion.div
                     className="h-full rounded-full"
@@ -578,8 +579,8 @@ export default function Zone01Profile() {
         <BentoCell className="col-span-1 md:col-span-2 lg:col-span-2 p-6" delay={0.2}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
-              <CalendarDays size={16} style={{ color: "rgba(255,255,255,0.4)" }} />
-              <span className="text-sm font-semibold text-white">Recent XP Gains</span>
+              <CalendarDays size={16} style={{ color: "hsl(var(--foreground) / 0.4)" }} />
+              <span className="text-sm font-semibold text-foreground">Recent XP Gains</span>
             </div>
             <span className="text-[10px] px-2 py-0.5 rounded-full" style={{
               background: "rgba(0,180,216,0.1)",
@@ -592,7 +593,7 @@ export default function Zone01Profile() {
 
           <div className="flex flex-col gap-2">
             {profileData.recentTransactions.length === 0 ? (
-              <p className="text-sm text-center py-6" style={{ color: "rgba(255,255,255,0.3)" }}>
+              <p className="text-sm text-center py-6" style={{ color: "hsl(var(--foreground) / 0.3)" }}>
                 No XP transactions found
               </p>
             ) : (
@@ -603,12 +604,12 @@ export default function Zone01Profile() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + i * 0.05 }}
                   className="flex items-center justify-between py-2.5 px-3 rounded-xl transition-colors duration-150"
-                  style={{ background: "rgba(255,255,255,0.02)" }}
+                  style={{ background: "hsl(var(--foreground) / 0.02)" }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+                    e.currentTarget.style.background = "hsl(var(--foreground) / 0.05)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                    e.currentTarget.style.background = "hsl(var(--foreground) / 0.02)";
                   }}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -622,10 +623,10 @@ export default function Zone01Profile() {
                       {i + 1}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {tx.project}
                       </p>
-                      <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+                      <p className="text-[10px]" style={{ color: "hsl(var(--foreground) / 0.3)" }}>
                         {formatDate(tx.createdAt)}
                       </p>
                     </div>
@@ -645,8 +646,8 @@ export default function Zone01Profile() {
         {/* ── XP Breakdown Mini Card ─────────────────────────── */}
         <BentoCell className="col-span-1 lg:col-span-2 p-6" delay={0.25} glowColor="rgba(253,203,110,0.08)">
           <div className="flex items-center gap-2 mb-4">
-            <Zap size={14} style={{ color: "rgba(255,255,255,0.4)" }} />
-            <span className="text-sm font-semibold text-white">XP Breakdown</span>
+            <Zap size={14} style={{ color: "hsl(var(--foreground) / 0.4)" }} />
+            <span className="text-sm font-semibold text-foreground">XP Breakdown</span>
           </div>
 
           {/* Visual bar chart of top 5 projects by XP */}
@@ -668,13 +669,13 @@ export default function Zone01Profile() {
                 <div key={`bar-${tx.project}-${i}`} className="flex items-center gap-3">
                   <span
                     className="text-[10px] w-20 truncate text-right flex-shrink-0"
-                    style={{ color: "rgba(255,255,255,0.5)" }}
+                    style={{ color: "hsl(var(--foreground) / 0.5)" }}
                   >
                     {tx.project}
                   </span>
                   <div
                     className="flex-1 h-2 rounded-full overflow-hidden"
-                    style={{ background: "rgba(255,255,255,0.04)" }}
+                    style={{ background: "hsl(var(--foreground) / 0.04)" }}
                   >
                     <motion.div
                       className="h-full rounded-full"

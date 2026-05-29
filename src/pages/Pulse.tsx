@@ -16,12 +16,14 @@ import {
   PartyPopper,
 } from "lucide-react";
 import { format } from "date-fns";
+import { useTheme } from "@/components/ThemeProvider";
 
 type TabType = "food" | "events";
 type FoodFilter = "all" | "open" | "locked" | "mine";
 type EventFilter = "all" | "upcoming" | "mine";
 
 export default function Pulse() {
+  const { theme } = useTheme();
   const [tab, setTab] = useState<TabType>("food");
   const [showCreate, setShowCreate] = useState(false);
   const [createType, setCreateType] = useState<TabType>("food");
@@ -45,17 +47,17 @@ export default function Pulse() {
       </AnimatePresence>
 
       <div className="mb-8">
-        <div className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
-          <Link to="/hub" className="hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}>Hub</Link>
+        <div className="text-sm mb-2" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
+          <Link to="/hub" className="hover:text-foreground transition-colors" style={{ color: "hsl(var(--foreground) / 0.4)" }}>Hub</Link>
           <span className="mx-2">/</span>
           <span>Pulse</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white module-header-border-pulse pl-4">
+            <h1 className="text-4xl font-bold text-foreground module-header-border-pulse pl-4">
               Nexus Pulse
             </h1>
-            <p className="text-base mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <p className="text-base mt-2" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
               Food orders & events
             </p>
           </div>
@@ -71,14 +73,14 @@ export default function Pulse() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0 mb-6" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+      <div className="flex gap-0 mb-6" style={{ borderBottom: "1px solid hsl(var(--foreground) / 0.08)" }}>
         <button onClick={() => setTab("food")} className="px-6 py-3 text-sm font-medium transition-colors relative"
-          style={{ color: tab === "food" ? "#E17055" : "rgba(255,255,255,0.4)" }}>
+          style={{ color: tab === "food" ? "#E17055" : "hsl(var(--foreground) / 0.4)" }}>
           Food Orders
           {tab === "food" && <motion.div layoutId="pulseTab" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "#E17055" }} />}
         </button>
         <button onClick={() => setTab("events")} className="px-6 py-3 text-sm font-medium transition-colors relative"
-          style={{ color: tab === "events" ? "#E17055" : "rgba(255,255,255,0.4)" }}>
+          style={{ color: tab === "events" ? "#E17055" : "hsl(var(--foreground) / 0.4)" }}>
           Events
           {tab === "events" && <motion.div layoutId="pulseTab" className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "#E17055" }} />}
         </button>
@@ -141,16 +143,16 @@ function FoodOrdersTab({ setToast }: { setToast: (t: { message: string; type: "s
             return (
               <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white">{post.restaurantName}</h3>
+                  <h3 className="text-lg font-semibold text-foreground">{post.restaurantName}</h3>
                   <span className="text-xs px-2 py-1 rounded-md font-medium"
                     style={{ background: isFull ? "rgba(253,203,110,0.1)" : isExpired ? "rgba(239,68,68,0.1)" : "rgba(52,211,153,0.1)",
                       color: isFull ? "#FDCB6E" : isExpired ? "#ef4444" : "#34d399" }}>
                     {isFull ? "Locked" : isExpired ? "Expired" : "Open"}
                   </span>
                 </div>
-                <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>Ordering: {post.menuItems}</p>
-                <p className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.5)" }}>Delivery: {post.deliveryFee} MAD total</p>
-                <div className="flex items-center gap-2 mb-3 text-sm" style={{ color: isExpired ? "#ef4444" : "rgba(255,255,255,0.5)" }}>
+                <p className="text-sm mb-2" style={{ color: "hsl(var(--foreground) / 0.6)" }}>Ordering: {post.menuItems}</p>
+                <p className="text-sm mb-2" style={{ color: "hsl(var(--foreground) / 0.5)" }}>Delivery: {post.deliveryFee} MAD total</p>
+                <div className="flex items-center gap-2 mb-3 text-sm" style={{ color: isExpired ? "#ef4444" : "hsl(var(--foreground) / 0.5)" }}>
                   <Timer size={14} />
                   <span>{isExpired ? "Expired" : format(new Date(post.orderDeadline), "MMM d, h:mm a")}</span>
                 </div>
@@ -159,15 +161,15 @@ function FoodOrdersTab({ setToast }: { setToast: (t: { message: string; type: "s
                     style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
                     {post.user?.name?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{post.user?.name}</span>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{post.user?.name}</span>
                 </div>
                 {/* Progress bar */}
                 <div className="mb-3">
-                  <div className="flex items-center justify-between text-xs mb-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <div className="flex items-center justify-between text-xs mb-1" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                     <span>{bookingCount}/5 people</span>
                     <span>{Math.round((bookingCount / 5) * 100)}%</span>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "hsl(var(--foreground) / 0.06)" }}>
                     <div className="h-full rounded-full transition-all" style={{ width: `${(bookingCount / 5) * 100}%`, background: "#E17055" }} />
                   </div>
                 </div>
@@ -248,14 +250,14 @@ function EventsTab({ setToast }: { setToast: (t: { message: string; type: "succe
                     {eventTypeLabels[event.eventType]}
                   </span>
                   <span className="text-xs px-2 py-1 rounded-md"
-                    style={{ background: event.status === "upcoming" ? "rgba(52,211,153,0.1)" : "rgba(255,255,255,0.06)",
-                      color: event.status === "upcoming" ? "#34d399" : "rgba(255,255,255,0.5)" }}>
+                    style={{ background: event.status === "upcoming" ? "rgba(52,211,153,0.1)" : "hsl(var(--foreground) / 0.06)",
+                      color: event.status === "upcoming" ? "#34d399" : "hsl(var(--foreground) / 0.5)" }}>
                     {event.status}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">{event.title}</h3>
-                <p className="text-sm mb-3" style={{ color: "rgba(255,255,255,0.6)" }}>{event.description}</p>
-                <div className="flex flex-col gap-2 mb-3" style={{ color: "rgba(255,255,255,0.5)" }}>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{event.title}</h3>
+                <p className="text-sm mb-3" style={{ color: "hsl(var(--foreground) / 0.6)" }}>{event.description}</p>
+                <div className="flex flex-col gap-2 mb-3" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                   <div className="flex items-center gap-2 text-sm"><MapPin size={14} />{event.location}</div>
                   <div className="flex items-center gap-2 text-sm"><Calendar size={14} />{format(new Date(event.eventDate), "MMM d, yyyy h:mm a")}</div>
                   <div className="flex items-center gap-2 text-sm">
@@ -268,7 +270,7 @@ function EventsTab({ setToast }: { setToast: (t: { message: string; type: "succe
                     style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
                     {event.user?.name?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{event.user?.name}</span>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{event.user?.name}</span>
                 </div>
                 {isAttending ? (
                   <button onClick={() => leaveMutation.mutate({ eventId: event.id })}
@@ -298,6 +300,7 @@ function EventsTab({ setToast }: { setToast: (t: { message: string; type: "succe
 
 function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => void }) {
   const utils = trpc.useUtils();
+  const { theme } = useTheme();
   const [foodForm, setFoodForm] = useState({ restaurantName: "", menuItems: "", deliveryFee: "", orderDeadline: "" });
   const [eventForm, setEventForm] = useState({ title: "", description: "", eventType: "movie" as const, location: "", eventDate: "", maxAttendees: "" });
 
@@ -332,8 +335,8 @@ function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => voi
     });
   };
 
-  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-white outline-none";
-  const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" };
+  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none";
+  const inputStyle = { background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -342,43 +345,43 @@ function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => voi
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
         className="glass-modal w-full max-w-md p-6 my-8" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">{type === "food" ? "Start Food Order" : "Create Event"}</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
+          <h2 className="text-xl font-semibold text-foreground">{type === "food" ? "Start Food Order" : "Create Event"}</h2>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
         </div>
 
         {type === "food" ? (
           <form onSubmit={handleFoodSubmit} className="flex flex-col gap-4">
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Restaurant</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Restaurant</label>
               <input type="text" value={foodForm.restaurantName} onChange={(e) => setFoodForm({ ...foodForm, restaurantName: e.target.value })} className={inputClass} style={inputStyle} placeholder="Restaurant name" /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Menu Items</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Menu Items</label>
               <textarea value={foodForm.menuItems} onChange={(e) => setFoodForm({ ...foodForm, menuItems: e.target.value })} className={`${inputClass} h-20 py-2 resize-none`} style={inputStyle} placeholder="What are you ordering?" /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Delivery Fee (MAD)</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Delivery Fee (MAD)</label>
               <input type="number" value={foodForm.deliveryFee} onChange={(e) => setFoodForm({ ...foodForm, deliveryFee: e.target.value })} className={inputClass} style={inputStyle} placeholder="0" /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Order Deadline</label>
-              <input type="datetime-local" value={foodForm.orderDeadline} onChange={(e) => setFoodForm({ ...foodForm, orderDeadline: e.target.value })} className={inputClass} style={{ ...inputStyle, colorScheme: "dark" }} /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Max People</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Order Deadline</label>
+              <input type="datetime-local" value={foodForm.orderDeadline} onChange={(e) => setFoodForm({ ...foodForm, orderDeadline: e.target.value })} className={inputClass} style={{ ...inputStyle, colorScheme: theme === "dark" ? "dark" : "light" }} /></div>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Max People</label>
               <input type="text" disabled value="5 (fixed)" className={inputClass} style={{ ...inputStyle, opacity: 0.5 }} /></div>
             <button type="submit" disabled={foodMutation.isPending} className="w-full h-11 rounded-xl text-sm font-medium transition-all disabled:opacity-40"
               style={{ background: "#E17055", color: "#0A0A0F" }}>{foodMutation.isPending ? "Creating..." : "Start Order"}</button>
           </form>
         ) : (
           <form onSubmit={handleEventSubmit} className="flex flex-col gap-4">
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Title</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Title</label>
               <input type="text" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} className={inputClass} style={inputStyle} placeholder="Event title" /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Description</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Description</label>
               <textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} className={`${inputClass} h-20 py-2 resize-none`} style={inputStyle} placeholder="What's this event about?" /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Event Type</label>
-              <select value={eventForm.eventType} onChange={(e) => setEventForm({ ...eventForm, eventType: e.target.value as typeof eventForm.eventType })} className={inputClass} style={{ ...inputStyle, color: "white" }}>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Event Type</label>
+              <select value={eventForm.eventType} onChange={(e) => setEventForm({ ...eventForm, eventType: e.target.value as typeof eventForm.eventType })} className={inputClass} style={{ ...inputStyle, color: "hsl(var(--foreground))" }}>
                 <option value="movie">Movie Night</option>
                 <option value="board_games">Board Games</option>
                 <option value="study">Study Session</option>
                 <option value="other">Other</option>
               </select></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Location</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Location</label>
               <input type="text" value={eventForm.location} onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })} className={inputClass} style={inputStyle} placeholder="Where?" /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Event Date</label>
-              <input type="datetime-local" value={eventForm.eventDate} onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })} className={inputClass} style={{ ...inputStyle, colorScheme: "dark" }} /></div>
-            <div><label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Max Attendees (optional)</label>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Event Date</label>
+              <input type="datetime-local" value={eventForm.eventDate} onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })} className={inputClass} style={{ ...inputStyle, colorScheme: theme === "dark" ? "dark" : "light" }} /></div>
+            <div><label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Max Attendees (optional)</label>
               <input type="number" value={eventForm.maxAttendees} onChange={(e) => setEventForm({ ...eventForm, maxAttendees: e.target.value })} className={inputClass} style={inputStyle} placeholder="Leave empty for no limit" /></div>
             <button type="submit" disabled={eventMutation.isPending} className="w-full h-11 rounded-xl text-sm font-medium transition-all disabled:opacity-40"
               style={{ background: "#E17055", color: "#0A0A0F" }}>{eventMutation.isPending ? "Creating..." : "Create Event"}</button>
@@ -391,10 +394,10 @@ function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => voi
 
 function SkeletonCard() {
   return (
-    <div className="glass-card p-6 animate-pulse" style={{ background: "rgba(255,255,255,0.03)" }}>
-      <div className="h-4 rounded w-1/3 mb-4" style={{ background: "rgba(255,255,255,0.05)" }} />
-      <div className="h-3 rounded w-2/3 mb-2" style={{ background: "rgba(255,255,255,0.05)" }} />
-      <div className="h-8 rounded w-full" style={{ background: "rgba(255,255,255,0.05)" }} />
+    <div className="glass-card p-6 animate-pulse" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
+      <div className="h-4 rounded w-1/3 mb-4" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+      <div className="h-3 rounded w-2/3 mb-2" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+      <div className="h-8 rounded w-full" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
     </div>
   );
 }
@@ -405,8 +408,8 @@ function EmptyState({ icon, title, description, action, onAction, accent }: {
   return (
     <div className="flex flex-col items-center justify-center py-20">
       <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{ background: `${accent}15` }}>{icon}</div>
-      <h3 className="text-lg font-medium text-white mb-2">{title}</h3>
-      <p className="text-sm mb-6 text-center" style={{ color: "rgba(255,255,255,0.5)" }}>{description}</p>
+      <h3 className="text-lg font-medium text-foreground mb-2">{title}</h3>
+      <p className="text-sm mb-6 text-center" style={{ color: "hsl(var(--foreground) / 0.5)" }}>{description}</p>
       <button onClick={onAction} className="flex items-center gap-2 px-5 h-11 rounded-xl font-medium text-sm"
         style={{ background: accent, color: "#0A0A0F" }}><Plus size={18} />{action}</button>
     </div>

@@ -1,6 +1,7 @@
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useTheme } from "@/components/ThemeProvider";
 
 const vertexShader = `
   varying vec2 vUv;
@@ -15,6 +16,7 @@ const fragmentShader = `
   uniform vec2 uMouse;
   uniform vec2 uResolution;
   uniform float uHue;
+  uniform float uLightness;
   varying vec2 vUv;
 
   vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -72,11 +74,11 @@ const fragmentShader = `
 
   vec3 getColorCircle(int index, float total) {
     float hue = uHue + float(index)/total;
-    return hsl2rgb(vec3(mod(hue,1.0), 0.7, 0.5));
+    return hsl2rgb(vec3(mod(hue,1.0), 0.7, uLightness * 6.0));
   }
 
   vec3 getBackgroundColor(float hue) {
-    return hsl2rgb(vec3(mod(hue,1.0), 0.6, 0.08));
+    return hsl2rgb(vec3(mod(hue,1.0), 0.6, uLightness));
   }
 
   float circleShape(vec2 pos, float radius) {
@@ -115,6 +117,7 @@ const fragmentShader = `
 
 function ShaderMesh() {
   const meshRef = useRef<THREE.Mesh>(null);
+  const { theme } = useTheme();
   const mouseRef = useRef(new THREE.Vector2(0.5, 0.5));
   const targetMouseRef = useRef(new THREE.Vector2(0.5, 0.5));
 
@@ -124,14 +127,20 @@ function ShaderMesh() {
       uMouse: { value: new THREE.Vector2(0.5, 0.5) },
       uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
       uHue: { value: 0.72 },
+      uLightness: { value: theme === "dark" ? 0.08 : 0.95 },
     }),
-    []
+    [theme]
   );
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const material = meshRef.current.material as THREE.ShaderMaterial;
     material.uniforms.uTime.value = state.clock.getElapsedTime() * 1000;
+    material.uniforms.uLightness.value = THREE.MathUtils.lerp(
+      material.uniforms.uLightness.value,
+      theme === "dark" ? 0.08 : 0.95,
+      0.05
+    );
 
     mouseRef.current.lerp(targetMouseRef.current, 0.05);
     material.uniforms.uMouse.value.copy(mouseRef.current);

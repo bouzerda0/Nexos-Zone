@@ -15,11 +15,13 @@ import {
   Check,
   XCircle,
 } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 type FilterType = "all" | "open" | "mine";
 
 export default function Habitat() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [filter, setFilter] = useState<FilterType>("all");
   const [showCreate, setShowCreate] = useState(false);
   const [showRequests, setShowRequests] = useState<number | null>(null);
@@ -72,23 +74,23 @@ export default function Habitat() {
             style={{ borderLeft: `3px solid ${toast.type === "success" ? "#55EFC4" : "#E17055"}` }}
           >
             {toast.type === "success" ? <CheckCircle2 size={16} color="#55EFC4" /> : <AlertCircle size={16} color="#E17055" />}
-            <span className="text-sm text-white">{toast.message}</span>
+            <span className="text-sm text-foreground">{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       <div className="mb-8">
-        <div className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
-          <Link to="/hub" className="hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}>Hub</Link>
+        <div className="text-sm mb-2" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
+          <Link to="/hub" className="hover:text-foreground transition-colors" style={{ color: "hsl(var(--foreground) / 0.4)" }}>Hub</Link>
           <span className="mx-2">/</span>
           <span>Habitat</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white module-header-border-habitat pl-4">
+            <h1 className="text-4xl font-bold text-foreground module-header-border-habitat pl-4">
               Nexus Habitat
             </h1>
-            <p className="text-base mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <p className="text-base mt-2" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
               Find roommates who match your lifestyle
             </p>
           </div>
@@ -114,10 +116,10 @@ export default function Habitat() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2].map((i) => (
-            <div key={i} className="glass-card p-6 animate-pulse" style={{ background: "rgba(255,255,255,0.03)" }}>
-              <div className="h-4 rounded w-1/3 mb-4" style={{ background: "rgba(255,255,255,0.05)" }} />
-              <div className="h-3 rounded w-2/3 mb-2" style={{ background: "rgba(255,255,255,0.05)" }} />
-              <div className="h-8 rounded w-full" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <div key={i} className="glass-card p-6 animate-pulse" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
+              <div className="h-4 rounded w-1/3 mb-4" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+              <div className="h-3 rounded w-2/3 mb-2" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+              <div className="h-8 rounded w-full" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
             </div>
           ))}
         </div>
@@ -133,7 +135,7 @@ export default function Habitat() {
               <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-semibold uppercase px-3 py-1 rounded-md"
-                    style={{ background: isOpen ? "rgba(253,203,110,0.15)" : "rgba(255,255,255,0.08)", color: isOpen ? "#FDCB6E" : "rgba(255,255,255,0.5)" }}>
+                    style={{ background: isOpen ? "rgba(253,203,110,0.15)" : "hsl(var(--foreground) / 0.08)", color: isOpen ? "#FDCB6E" : "hsl(var(--foreground) / 0.5)" }}>
                     {post.status === "open" ? "Available" : post.status === "filled" ? "Filled" : "Closed"}
                   </span>
                   <span className="text-xs font-semibold px-3 py-1 rounded-md"
@@ -142,8 +144,8 @@ export default function Habitat() {
                   </span>
                 </div>
 
-                <h3 className="text-lg font-semibold text-white mb-1">{post.title}</h3>
-                <div className="flex items-center gap-2 mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <h3 className="text-lg font-semibold text-foreground mb-1">{post.title}</h3>
+                <div className="flex items-center gap-2 mb-2" style={{ color: "hsl(var(--foreground) / 0.6)" }}>
                   <MapPin size={14} />
                   <span className="text-sm">{post.address}</span>
                 </div>
@@ -163,8 +165,8 @@ export default function Habitat() {
 
                 {/* Rules */}
                 <button onClick={() => setExpandedRules(expandedRules === post.id ? null : post.id)}
-                  className="flex items-center gap-1 text-sm mb-3 transition-colors hover:text-white"
-                  style={{ color: "rgba(255,255,255,0.5)" }}>
+                  className="flex items-center gap-1 text-sm mb-3 transition-colors hover:text-foreground"
+                  style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                   House Rules
                   {expandedRules === post.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                 </button>
@@ -172,7 +174,7 @@ export default function Habitat() {
                   {expandedRules === post.id && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                       className="overflow-hidden mb-3">
-                      <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>{post.rules}</p>
+                      <p className="text-sm" style={{ color: "hsl(var(--foreground) / 0.6)" }}>{post.rules}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -183,7 +185,7 @@ export default function Habitat() {
                     style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
                     {post.user?.name?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>{post.user?.name}</span>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{post.user?.name}</span>
                 </div>
 
                 {/* Actions */}
@@ -201,18 +203,18 @@ export default function Habitat() {
                       {showRequests === post.id && (
                         <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                           className="overflow-hidden">
-                          <div className="flex flex-col gap-2 mt-2 p-3 rounded-xl" style={{ background: "rgba(255,255,255,0.03)" }}>
+                          <div className="flex flex-col gap-2 mt-2 p-3 rounded-xl" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
                             {post.requests?.filter((r) => r.status === "pending").map((req) => (
-                              <div key={req.id} className="flex items-start justify-between gap-2 p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.04)" }}>
+                              <div key={req.id} className="flex items-start justify-between gap-2 p-2 rounded-lg" style={{ background: "hsl(var(--foreground) / 0.04)" }}>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1">
                                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white"
                                       style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
                                       {req.user?.name?.[0]?.toUpperCase() || "?"}
                                     </div>
-                                    <span className="text-sm text-white truncate">{req.user?.name}</span>
+                                    <span className="text-sm text-foreground truncate">{req.user?.name}</span>
                                   </div>
-                                  {req.message && <p className="text-xs truncate" style={{ color: "rgba(255,255,255,0.5)" }}>{req.message}</p>}
+                                  {req.message && <p className="text-xs truncate" style={{ color: "hsl(var(--foreground) / 0.5)" }}>{req.message}</p>}
                                 </div>
                                 <div className="flex gap-1">
                                   <button onClick={() => respondMutation.mutate({ requestId: req.id, action: "accept" })}
@@ -235,12 +237,12 @@ export default function Habitat() {
                   requestPostId === post.id ? (
                     <div className="flex flex-col gap-2">
                       <textarea value={requestMessage} onChange={(e) => setRequestMessage(e.target.value)}
-                        className="w-full h-20 rounded-lg px-3 py-2 text-sm text-white outline-none resize-none"
-                        style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+                        className="w-full h-20 rounded-lg px-3 py-2 text-sm text-foreground outline-none resize-none"
+                        style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}
                         placeholder="Tell them about yourself..." />
                       <div className="flex gap-2">
                         <button onClick={() => { setRequestPostId(null); setRequestMessage(""); }}
-                          className="flex-1 h-9 rounded-lg text-sm transition-colors" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.6)" }}>
+                          className="flex-1 h-9 rounded-lg text-sm transition-colors" style={{ background: "hsl(var(--foreground) / 0.06)", color: "hsl(var(--foreground) / 0.6)" }}>
                           Cancel
                         </button>
                         <button onClick={() => sendRequestMutation.mutate({ postId: post.id, message: requestMessage })}
@@ -263,7 +265,7 @@ export default function Habitat() {
                   </button>
                 ) : (
                   <button disabled className="w-full h-10 rounded-xl text-sm font-medium opacity-50 cursor-not-allowed"
-                    style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.4)" }}>
+                    style={{ background: "hsl(var(--foreground) / 0.06)", color: "hsl(var(--foreground) / 0.4)" }}>
                     {post.status === "filled" ? "Filled" : "Closed"}
                   </button>
                 )}
@@ -276,8 +278,8 @@ export default function Habitat() {
           <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(253,203,110,0.1)" }}>
             <Home size={40} color="rgba(253,203,110,0.4)" />
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No listings yet</h3>
-          <p className="text-sm mb-6 text-center" style={{ color: "rgba(255,255,255,0.5)" }}>
+          <h3 className="text-lg font-medium text-foreground mb-2">No listings yet</h3>
+          <p className="text-sm mb-6 text-center" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
             Be the first to post your place and find a roommate!
           </p>
           <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-5 h-11 rounded-xl font-medium text-sm"
@@ -323,8 +325,8 @@ function CreateHabitatModal({ onClose }: { onClose: () => void }) {
     });
   };
 
-  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-white outline-none focus:ring-2 focus:ring-amber-400/30";
-  const inputStyle = { background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" };
+  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-amber-400/30";
+  const inputStyle = { background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -333,38 +335,38 @@ function CreateHabitatModal({ onClose }: { onClose: () => void }) {
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
         className="glass-modal w-full max-w-md p-6 my-8" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">Post Your Place</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
+          <h2 className="text-xl font-semibold text-foreground">Post Your Place</h2>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Title</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Title</label>
             <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputClass} style={inputStyle} placeholder="e.g., Shared apartment near campus" />
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Description</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Description</label>
             <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className={`${inputClass} h-20 py-2 resize-none`} style={inputStyle} placeholder="Describe the place..." />
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Address</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Address</label>
             <input type="text" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} className={inputClass} style={inputStyle} placeholder="Full address" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Rent (MAD/person)</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Rent (MAD/person)</label>
               <input type="number" value={form.rentPerPerson} onChange={(e) => setForm({ ...form, rentPerPerson: e.target.value })} className={inputClass} style={inputStyle} placeholder="1500" />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Available Spots</label>
+              <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Available Spots</label>
               <input type="number" min={1} max={10} value={form.spotsAvailable} onChange={(e) => setForm({ ...form, spotsAvailable: e.target.value })} className={inputClass} style={inputStyle} placeholder="1-10" />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Tags (comma separated)</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Tags (comma separated)</label>
             <input type="text" value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className={inputClass} style={inputStyle} placeholder="Quiet, Clean, Non-smoker..." />
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>House Rules</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>House Rules</label>
             <textarea value={form.rules} onChange={(e) => setForm({ ...form, rules: e.target.value })} className={`${inputClass} h-20 py-2 resize-none`} style={inputStyle} placeholder="What are your house rules?" />
           </div>
           <button type="submit" disabled={createMutation.isPending}

@@ -46,11 +46,12 @@ export const authRouter = createRouter({
               const hash = rawAvatar.includes("avatars/") 
                 ? rawAvatar.split("avatars/").pop() 
                 : rawAvatar.replace(/^\/(git\/avatars\/)?/, "");
-              finalAvatarHash = hash;
+              const fullAvatarUrl = `https://learn.zone01oujda.ma/git/avatars/${hash}`;
+              finalAvatarHash = fullAvatarUrl;
 
-              // Persist it to DB so we don't have to fetch again
+              // Persist the full URL to DB so we don't have to fetch again
               const db = getDb();
-              await db.update(users).set({ avatarUrl: hash }).where(eq(users.id, ctx.user.id));
+              await db.update(users).set({ avatarUrl: fullAvatarUrl }).where(eq(users.id, ctx.user.id));
             }
           }
         }
@@ -59,7 +60,13 @@ export const authRouter = createRouter({
       }
     }
 
-    return { ...ctx.user, avatarUrl: finalAvatarHash };
+    const safeAvatarUrl = finalAvatarHash
+      ? finalAvatarHash.startsWith("http")
+        ? finalAvatarHash
+        : `https://learn.zone01oujda.ma/git/avatars/${finalAvatarHash}`
+      : null;
+
+    return { ...ctx.user, avatarUrl: safeAvatarUrl };
   }),
 
   login: publicQuery
@@ -178,11 +185,12 @@ export const authRouter = createRouter({
 
       console.log("INTRA USER ATTRS:", typeof parsedAttrs, parsedAttrs);
 
-      // Extract 01-edu avatar hash
+      // Extract 01-edu avatar hash and build full URL
       const rawAvatar = parsedAttrs?.avatarUrl || parsedAttrs?.avatar || parsedAttrs?.picture || parsedAttrs?.image || null;
       const avatarHash = rawAvatar 
         ? (rawAvatar.includes("avatars/") ? rawAvatar.split("avatars/").pop() : rawAvatar.replace(/^\/(git\/avatars\/)?/, "")) 
         : null;
+      const avatarUrl = avatarHash ? `https://learn.zone01oujda.ma/git/avatars/${avatarHash}` : null;
 
       const db = getDb();
 
@@ -193,7 +201,7 @@ export const authRouter = createRouter({
         const updateData = {
           login: intraUser.login,
           email: intraUser.email || localUser.email,
-          avatarUrl: avatarHash,
+          avatarUrl: avatarUrl,
           lastSignInAt: new Date(),
         };
         await db.update(users).set(updateData).where(eq(users.id, localUser.id));
@@ -203,7 +211,7 @@ export const authRouter = createRouter({
           intraId: intraUser.id,
           login: intraUser.login,
           email: intraUser.email || "no-email@local",
-          avatarUrl: avatarHash,
+          avatarUrl: avatarUrl,
         });
         const [newUser] = await db.select().from(users).where(eq(users.id, insertResult.insertId));
         localUser = newUser;

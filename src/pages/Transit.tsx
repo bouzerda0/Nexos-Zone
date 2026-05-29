@@ -5,11 +5,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 import { Car, ArrowRight, Clock, MapPin, Plus, X, CircleCheck as CheckCircle2, Users, CircleAlert as AlertCircle } from "lucide-react";
 import { format } from "date-fns";
+import { useTheme } from "@/components/ThemeProvider";
 
 type FilterType = "all" | "aller" | "retour" | "mine";
 
 export default function Transit() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [filter, setFilter] = useState<FilterType>("all");
   const [showCreate, setShowCreate] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -64,24 +66,24 @@ export default function Transit() {
             style={{ borderLeft: `3px solid ${toast.type === "success" ? "#55EFC4" : "#E17055"}` }}
           >
             {toast.type === "success" ? <CheckCircle2 size={16} color="#55EFC4" /> : <AlertCircle size={16} color="#E17055" />}
-            <span className="text-sm text-white">{toast.message}</span>
+            <span className="text-sm" style={{ color: "hsl(var(--foreground))" }}>{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Breadcrumb + Header */}
       <div className="mb-8">
-        <div className="text-sm mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>
-          <Link to="/hub" className="hover:text-white transition-colors" style={{ color: "rgba(255,255,255,0.4)" }}>Hub</Link>
+        <div className="text-sm mb-2" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
+          <Link to="/hub" className="transition-colors" style={{ color: "hsl(var(--foreground) / 0.4)" }}>Hub</Link>
           <span className="mx-2">/</span>
           <span>Transit</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white module-header-border-transit pl-4">
+            <h1 className="text-4xl font-bold module-header-border-transit pl-4" style={{ color: "hsl(var(--foreground))" }}>
               Nexus Transit
             </h1>
-            <p className="text-base mt-2" style={{ color: "rgba(255,255,255,0.5)" }}>
+            <p className="text-base mt-2" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
               Find or offer rides to Zone 01 Oujda
             </p>
           </div>
@@ -113,11 +115,11 @@ export default function Transit() {
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="glass-card p-6 animate-pulse" style={{ background: "rgba(255,255,255,0.03)" }}>
-              <div className="h-4 rounded w-1/3 mb-4" style={{ background: "rgba(255,255,255,0.05)" }} />
-              <div className="h-3 rounded w-2/3 mb-2" style={{ background: "rgba(255,255,255,0.05)" }} />
-              <div className="h-3 rounded w-1/2 mb-4" style={{ background: "rgba(255,255,255,0.05)" }} />
-              <div className="h-8 rounded w-full" style={{ background: "rgba(255,255,255,0.05)" }} />
+            <div key={i} className="glass-card p-6 animate-pulse" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
+              <div className="h-4 rounded w-1/3 mb-4" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+              <div className="h-3 rounded w-2/3 mb-2" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+              <div className="h-3 rounded w-1/2 mb-4" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
+              <div className="h-8 rounded w-full" style={{ background: "hsl(var(--foreground) / 0.05)" }} />
             </div>
           ))}
         </div>
@@ -154,13 +156,13 @@ export default function Transit() {
 
                 {/* Route */}
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-white font-medium">{post.fromLocation}</span>
+                  <span className="text-sm font-medium" style={{ color: "hsl(var(--foreground))" }}>{post.fromLocation}</span>
                   <ArrowRight size={14} color="#00CEC9" />
-                  <span className="text-sm text-white font-medium">{post.toLocation}</span>
+                  <span className="text-sm font-medium" style={{ color: "hsl(var(--foreground))" }}>{post.toLocation}</span>
                 </div>
 
                 {/* Details */}
-                <div className="flex flex-col gap-2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                <div className="flex flex-col gap-2" style={{ color: "hsl(var(--foreground) / 0.6)" }}>
                   <div className="flex items-center gap-2 text-sm">
                     <Clock size={14} />
                     <span>{format(new Date(post.departureTime), "MMM d, yyyy h:mm a")}</span>
@@ -181,43 +183,43 @@ export default function Transit() {
                       {post.user?.login?.[0]?.toUpperCase() || "?"}
                     </div>
                   )}
-                  <span className="text-sm" style={{ color: "rgba(255,255,255,0.7)" }}>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>
                     {post.user?.login || "Unknown"}
                   </span>
                 </div>
 
                 {/* Passengers */}
                 <div className="flex items-center gap-2">
-                  <Users size={14} color="rgba(255,255,255,0.5)" />
+                  <Users size={14} color="hsl(var(--foreground) / 0.5)" />
                   <div className="flex -space-x-2">
                     {Array.from({ length: 4 }).map((_, i) => {
                       const b = post.bookings?.[i];
                       if (b) {
                         return b.user?.avatarUrl ? (
-                          <img key={i} src={b.user.avatarUrl} alt={b.user?.login || "User"} className="w-6 h-6 rounded-full border-2 object-cover" style={{ borderColor: "#0A0A0F" }} />
+                          <img key={i} src={b.user.avatarUrl} alt={b.user?.login || "User"} className="w-6 h-6 rounded-full border-2 object-cover" style={{ borderColor: "hsl(var(--background))" }} />
                         ) : (
                           <div key={i} className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] font-semibold text-white"
-                            style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)", borderColor: "#0A0A0F" }}>
+                            style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)", borderColor: "hsl(var(--background))" }}>
                             {b.user?.login?.[0]?.toUpperCase() || "?"}
                           </div>
                         );
                       }
                       return (
                         <div key={i} className="w-6 h-6 rounded-full border-2 border-dashed flex items-center justify-center"
-                          style={{ borderColor: "rgba(255,255,255,0.2)", background: "rgba(255,255,255,0.02)" }}>
+                          style={{ borderColor: "hsl(var(--foreground) / 0.2)", background: "hsl(var(--foreground) / 0.02)" }}>
                         </div>
                       );
                     })}
                   </div>
-                  <span className="text-xs ml-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+                  <span className="text-xs ml-1" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
                     {seatCount}/4
                   </span>
                 </div>
 
                 {/* Seats & Action */}
-                <div className="mt-auto pt-3" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div className="mt-auto pt-3" style={{ borderTop: "1px solid hsl(var(--foreground) / 0.06)" }}>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-medium" style={{ color: isFull ? "#FDCB6E" : seatsLeft <= 1 ? "#E17055" : "rgba(255,255,255,0.7)" }}>
+                    <span className="text-sm font-medium" style={{ color: isFull ? "#FDCB6E" : seatsLeft <= 1 ? "#E17055" : "hsl(var(--foreground) / 0.7)" }}>
                       {isFull ? "FULL" : isCancelled ? "Cancelled" : isPast ? "Departed" : `${seatsLeft} seat${seatsLeft !== 1 ? "s" : ""} left`}
                     </span>
                   </div>
@@ -243,7 +245,7 @@ export default function Transit() {
                 </div>
 
                 {post.notes && (
-                  <p className="text-xs italic" style={{ color: "rgba(255,255,255,0.4)" }}>
+                  <p className="text-xs italic" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
                     {post.notes}
                   </p>
                 )}
@@ -269,8 +271,8 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(0,206,201,0.1)" }}>
         <Car size={40} color="rgba(0,206,201,0.4)" />
       </div>
-      <h3 className="text-lg font-medium text-white mb-2">No rides yet</h3>
-      <p className="text-sm mb-6 text-center" style={{ color: "rgba(255,255,255,0.5)" }}>
+      <h3 className="text-lg font-medium text-foreground mb-2">No rides yet</h3>
+      <p className="text-sm mb-6 text-center" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
         Be the first to offer a ride and help your classmates get to campus!
       </p>
       <button
@@ -316,12 +318,12 @@ function CreateRideModal({ onClose, activeFilterInput }: { onClose: () => void, 
             direction: newRide.direction,
             fromLocation: newRide.fromLocation,
             toLocation: newRide.toLocation,
-            departureTime: newRide.departureTime,
+            departureTime: new Date(newRide.departureTime),
             meetingPoint: newRide.meetingPoint,
             notes: newRide.notes || null,
             status: "open" as const,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             user,
             bookings: [],
             _count: { bookings: 0 },
@@ -332,7 +334,7 @@ function CreateRideModal({ onClose, activeFilterInput }: { onClose: () => void, 
       }
       return { previousPosts };
     },
-    onError: (err, newRide, context) => {
+    onError: (err, _, context) => {
       if (context?.previousPosts) {
         utils.transit.list.setData(activeFilterInput, context.previousPosts);
       }
@@ -375,15 +377,15 @@ function CreateRideModal({ onClose, activeFilterInput }: { onClose: () => void, 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">Offer a Ride</h2>
-          <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
+          <h2 className="text-xl font-semibold text-foreground">Offer a Ride</h2>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground transition-colors">
             <X size={20} />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Direction</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Direction</label>
             <div className="flex gap-2">
               {(["aller", "retour"] as const).map((d) => (
                 <button
@@ -392,9 +394,9 @@ function CreateRideModal({ onClose, activeFilterInput }: { onClose: () => void, 
                   onClick={() => setForm({ ...form, direction: d })}
                   className="flex-1 h-10 rounded-lg text-sm font-medium transition-all"
                   style={{
-                    background: form.direction === d ? "rgba(0,206,201,0.2)" : "rgba(255,255,255,0.06)",
-                    border: `1px solid ${form.direction === d ? "rgba(0,206,201,0.4)" : "rgba(255,255,255,0.08)"}`,
-                    color: form.direction === d ? "#00CEC9" : "rgba(255,255,255,0.6)",
+                    background: form.direction === d ? "rgba(0,206,201,0.2)" : "hsl(var(--foreground) / 0.06)",
+                    border: `1px solid ${form.direction === d ? "rgba(0,206,201,0.4)" : "hsl(var(--foreground) / 0.08)"}`,
+                    color: form.direction === d ? "#00CEC9" : "hsl(var(--foreground) / 0.6)",
                   }}
                 >
                   {d === "aller" ? "To Campus" : "From Campus"}
@@ -404,59 +406,59 @@ function CreateRideModal({ onClose, activeFilterInput }: { onClose: () => void, 
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>From Location</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>From Location</label>
             <input
               type="text"
               value={form.fromLocation}
               onChange={(e) => setForm({ ...form, fromLocation: e.target.value })}
-              className="w-full h-10 rounded-lg px-3 text-sm text-white outline-none focus:ring-2"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none focus:ring-2"
+              style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}
               placeholder={form.direction === "aller" ? "Your starting point" : "Zone 01 Oujda"}
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>To Location</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>To Location</label>
             <input
               type="text"
               value={form.toLocation}
               onChange={(e) => setForm({ ...form, toLocation: e.target.value })}
-              className="w-full h-10 rounded-lg px-3 text-sm text-white outline-none focus:ring-2"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none focus:ring-2"
+              style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}
               placeholder={form.direction === "aller" ? "Zone 01 Oujda" : "Your destination"}
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Departure Time</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Departure Time</label>
             <input
               type="datetime-local"
               value={form.departureTime}
               onChange={(e) => setForm({ ...form, departureTime: e.target.value })}
-              className="w-full h-10 rounded-lg px-3 text-sm text-white outline-none focus:ring-2"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)", colorScheme: "dark" }}
+              className="w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none focus:ring-2"
+              style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)", colorScheme: theme === "dark" ? "dark" : "light" }}
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Meeting Point</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Meeting Point</label>
             <input
               type="text"
               value={form.meetingPoint}
               onChange={(e) => setForm({ ...form, meetingPoint: e.target.value })}
-              className="w-full h-10 rounded-lg px-3 text-sm text-white outline-none focus:ring-2"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none focus:ring-2"
+              style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}
               placeholder="Where to meet"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "rgba(255,255,255,0.7)" }}>Notes (optional)</label>
+            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Notes (optional)</label>
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className="w-full h-20 rounded-lg px-3 py-2 text-sm text-white outline-none focus:ring-2 resize-none"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}
+              className="w-full h-20 rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:ring-2 resize-none"
+              style={{ background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" }}
               placeholder="Any additional info..."
             />
           </div>

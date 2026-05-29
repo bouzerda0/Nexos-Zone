@@ -40,7 +40,7 @@ export const zone01Router = createRouter({
         password: z.string().min(1, "Password is required"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const domain = env.intraDomain;
 
       if (!domain) {
@@ -148,27 +148,34 @@ export const zone01Router = createRouter({
       }
 
       // ── Step 3: Extract profile fields ─────────────────────────
-      const attrs = user.attrs || {};
+      let attrs = user.attrs || {};
+      if (typeof attrs === "string") {
+        try { attrs = JSON.parse(attrs); } catch { attrs = {}; }
+      }
       const login: string = user.login ?? "";
       const firstName: string =
         attrs.firstName || attrs.first_name || attrs.givenName || "";
       const lastName: string =
         attrs.lastName || attrs.last_name || attrs.familyName || "";
 
-      // Avatar: use the raw Gitea hash-based path from attrs
+      // Avatar: avatarUrl is the key Zone 01 uses; fall back to legacy keys
       const baseDomain = domain.replace(/\/$/, "");
       const rawAvatar: string | null =
-        attrs.avatar || attrs.image || attrs.picture || null;
+        attrs.avatarUrl || attrs.avatar || attrs.image || attrs.picture || null;
       const avatarUrl = rawAvatar
         ? rawAvatar.startsWith("http")
           ? rawAvatar
           : `${baseDomain}${rawAvatar.startsWith("/") ? "" : "/"}${rawAvatar}`
         : null;
 
-      // Update the global user state with the newly extracted avatar hash
-      if (rawAvatar && input.identifier === ctx.user?.login) {
-        const db = getDb();
-        await db.update(users).set({ avatarUrl: rawAvatar }).where(eq(users.id, ctx.user.id));
+      // Update the global user state with the full avatar URL
+      if (avatarUrl && input.identifier === ctx.user?.login) {
+        try {
+          const db = getDb();
+          await db.update(users).set({ avatarUrl }).where(eq(users.id, ctx.user.id));
+        } catch (err) {
+          console.error("[zone01] Failed to persist avatarUrl to DB:", err);
+        }
       }
 
       // ── Step 4: Compute XP ─────────────────────────────────────
