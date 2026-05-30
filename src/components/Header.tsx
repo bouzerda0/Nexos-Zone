@@ -22,10 +22,10 @@ export default function Header() {
     : undefined;
 
   const navItems = [
-    { name: "Transit", path: "/transit", icon: Car, color: "#00CEC9" },
-    { name: "Habitat", path: "/habitat", icon: Home, color: "#FDCB6E" },
-    { name: "Pulse", path: "/pulse", icon: Utensils, color: "#E17055" },
     { name: "Forum", path: "/forum", icon: MessageSquare, color: "#A29BFE" },
+    { name: "Transit", path: "/transit", icon: Car, color: "#00CEC9" },
+    { name: "Pulse", path: "/pulse", icon: Utensils, color: "#E17055" },
+    { name: "Habitat", path: "/habitat", icon: Home, color: "#FDCB6E" },
     { name: "Spirit", path: "/spirit-arena", icon: Activity, color: "#55EFC4" },
   ];
 
@@ -141,7 +141,10 @@ export default function Header() {
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </motion.button>
 
-        <div className="flex items-center gap-2">
+        <Link 
+          to="/zone01-profile" 
+          className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all hover:bg-foreground/5 cursor-pointer no-underline"
+        >
           <Avatar className="w-8 h-8 border">
             <AvatarImage 
               src={avatarUrl} 
@@ -155,10 +158,10 @@ export default function Header() {
               {initials}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium hidden sm:block" style={{ color: "hsl(var(--foreground) / 0.8)" }}>
+          <span className="text-sm font-medium hidden sm:block transition-opacity hover:opacity-80" style={{ color: "hsl(var(--foreground) / 0.8)" }}>
             {user?.login || "User"}
           </span>
-        </div>
+        </Link>
 
         <button
           onClick={logout}

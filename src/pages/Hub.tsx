@@ -5,20 +5,20 @@ import { Car, Home, Utensils, MessageSquare, Activity, GraduationCap } from "luc
 
 const modules = [
   {
+    id: "forum",
+    name: "Nexus Forum",
+    description: "Memes, polls & culture",
+    icon: MessageSquare,
+    accent: "#A29BFE",
+    path: "/forum",
+  },
+  {
     id: "transit",
     name: "Nexus Transit",
     description: "Share rides to campus",
     icon: Car,
     accent: "#00CEC9",
     path: "/transit",
-  },
-  {
-    id: "habitat",
-    name: "Nexus Habitat",
-    description: "Find your perfect roommate",
-    icon: Home,
-    accent: "#FDCB6E",
-    path: "/habitat",
   },
   {
     id: "pulse",
@@ -29,12 +29,12 @@ const modules = [
     path: "/pulse",
   },
   {
-    id: "forum",
-    name: "Nexus Forum",
-    description: "Memes, polls & culture",
-    icon: MessageSquare,
-    accent: "#A29BFE",
-    path: "/forum",
+    id: "habitat",
+    name: "Nexus Habitat",
+    description: "Find your perfect roommate",
+    icon: Home,
+    accent: "#FDCB6E",
+    path: "/habitat",
   },
   {
     id: "spirit",
