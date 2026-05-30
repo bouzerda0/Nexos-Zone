@@ -104,10 +104,10 @@ export default function Forum() {
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold text-white"
                   style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                  {post.user?.name?.[0]?.toUpperCase() || "?"}
+                  {post.user?.login?.[0]?.toUpperCase() || "?"}
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-foreground">{post.user?.name || "Anonymous"}</div>
+                  <div className="text-sm font-medium text-foreground">{post.user?.login || "Anonymous"}</div>
                   <div className="text-xs" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
                     @{post.user?.email?.split("@")[0] || "user"} · {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
                   </div>
@@ -206,11 +206,11 @@ export default function Forum() {
                           <div key={comment.id} className="flex gap-2">
                             <div className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-semibold text-white"
                               style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                              {comment.user?.name?.[0]?.toUpperCase() || "?"}
+                              {comment.user?.login?.[0]?.toUpperCase() || "?"}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-foreground">{comment.user?.name}</span>
+                                <span className="text-sm font-medium text-foreground">{comment.user?.login}</span>
                                 <span className="text-xs" style={{ color: "hsl(var(--foreground) / 0.3)" }}>
                                   {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                                 </span>

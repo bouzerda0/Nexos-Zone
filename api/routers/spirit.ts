@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createRouter, authedQuery } from "../middleware";
 import { getDb } from "../queries/connection";
-import { prayerTimesCache, arenaMatches, arenaMatchPlayers } from "@db/schema";
-import { eq, and, sql, gte, lt } from "drizzle-orm";
+import { prayerTimesCache, arenaMatches, arenaMatchPlayers, users } from "@db/schema";
+import { eq, and, sql, gte, lt, inArray, asc } from "drizzle-orm";
 
 // Prayer times calculation using simplified algorithm for Oujda
 function calculatePrayerTimes(date: Date) {
@@ -38,9 +38,7 @@ export const spiritRouter = createRouter({
     const today = new Date();
     const dateStr = getDateStr(today);
 
-    const cached = await db.query.prayerTimesCache.findFirst({
-      where: eq(prayerTimesCache.date, dateStr),
-    });
+    const [cached] = await db.select().from(prayerTimesCache).where(eq(prayerTimesCache.date, dateStr));
 
     if (cached) {
       return {
@@ -73,23 +71,36 @@ export const spiritRouter = createRouter({
     const endOfDay = new Date(startOfDay);
     endOfDay.setDate(endOfDay.getDate() + 1);
 
-    const match = await db.query.arenaMatches.findFirst({
-      where: and(
+    const [match] = await db.select().from(arenaMatches).where(
+      and(
         gte(arenaMatches.matchDate, startOfDay),
         lt(arenaMatches.matchDate, endOfDay),
         eq(arenaMatches.status, "scheduled")
-      ),
-      with: {
-        user: true,
-        players: { with: { user: true } },
-      },
-    });
+      )
+    ).orderBy(asc(arenaMatches.matchDate)).limit(1);
 
     if (!match) return null;
 
+    const [matchUser] = await db.select().from(users).where(eq(users.id, match.userId));
+
+    const players = await db.select().from(arenaMatchPlayers).where(eq(arenaMatchPlayers.matchId, match.id));
+    const playerUserIds = [...new Set(players.map((p) => p.userId))];
+    const pUsers = playerUserIds.length > 0
+      ? await db.select().from(users).where(inArray(users.id, playerUserIds))
+      : [];
+    const userMap = new Map(pUsers.map((u) => [u.id, u]));
+
     return {
       ...match,
-      _count: { players: match.players.length },
+      user: matchUser ? { ...matchUser, avatarUrl: matchUser.avatarUrl || null } : null,
+      players: players.map((p) => {
+        const u = userMap.get(p.userId);
+        return {
+          ...p,
+          user: u ? { ...u, avatarUrl: u.avatarUrl || null } : null,
+        };
+      }),
+      _count: { players: players.length },
     };
   }),
 
@@ -100,22 +111,53 @@ export const spiritRouter = createRouter({
     const threeDaysLater = new Date(tomorrow);
     threeDaysLater.setDate(threeDaysLater.getDate() + 3);
 
-    const matches = await db.query.arenaMatches.findMany({
-      where: and(
+    const matches = await db.select().from(arenaMatches).where(
+      and(
         gte(arenaMatches.matchDate, tomorrow),
         lt(arenaMatches.matchDate, threeDaysLater),
         eq(arenaMatches.status, "scheduled")
-      ),
-      with: {
-        user: true,
-        players: { with: { user: true } },
-      },
-    });
+      )
+    ).orderBy(asc(arenaMatches.matchDate));
 
-    return matches.map((match) => ({
-      ...match,
-      _count: { players: match.players.length },
-    }));
+    if (matches.length === 0) return [];
+
+    const matchIds = matches.map(m => m.id);
+    const matchUserIds = [...new Set(matches.map(m => m.userId))];
+
+    const matchUsers = matchUserIds.length > 0
+      ? await db.select().from(users).where(inArray(users.id, matchUserIds))
+      : [];
+
+    const allPlayers = matchIds.length > 0
+      ? await db.select().from(arenaMatchPlayers).where(inArray(arenaMatchPlayers.matchId, matchIds))
+      : [];
+
+    const playerUserIds = [...new Set(allPlayers.map((p) => p.userId))];
+    const playerUsers = playerUserIds.length > 0
+      ? await db.select().from(users).where(inArray(users.id, playerUserIds))
+      : [];
+
+    const userMap = new Map(matchUsers.concat(playerUsers).map((u) => [u.id, u]));
+
+    return matches.map((match) => {
+      const matchUser = userMap.get(match.userId);
+      const matchPlayers = allPlayers
+        .filter((p) => p.matchId === match.id)
+        .map((p) => {
+          const u = userMap.get(p.userId);
+          return {
+            ...p,
+            user: u ? { ...u, avatarUrl: u.avatarUrl || null } : null,
+          };
+        });
+
+      return {
+        ...match,
+        user: matchUser ? { ...matchUser, avatarUrl: matchUser.avatarUrl || null } : null,
+        players: matchPlayers,
+        _count: { players: matchPlayers.length },
+      };
+    });
   }),
 
   createMatch: authedQuery
@@ -166,7 +208,15 @@ export const spiritRouter = createRouter({
         notes: input.notes || null,
       });
 
-      return { id: Number(result[0]?.insertId ?? 0) };
+      const insertedId = Number(result[0]?.insertId ?? 0);
+
+      // Automatically add creator to match players
+      await db.insert(arenaMatchPlayers).values({
+        matchId: insertedId,
+        userId: ctx.user.id,
+      });
+
+      return { id: insertedId };
     }),
 
   joinMatch: authedQuery

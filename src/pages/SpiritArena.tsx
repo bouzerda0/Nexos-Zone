@@ -199,9 +199,9 @@ export default function SpiritArena() {
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
                   style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                  {todayMatch.user?.name?.[0]?.toUpperCase() || "?"}
+                  {todayMatch.user?.login?.[0]?.toUpperCase() || "?"}
                 </div>
-                <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{todayMatch.user?.name}</span>
+                <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{todayMatch.user?.login}</span>
               </div>
 
               {/* Players avatars */}
@@ -210,7 +210,7 @@ export default function SpiritArena() {
                   {todayMatch.players?.slice(0, 6).map((p, i) => (
                     <div key={i} className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-semibold text-white"
                       style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)", borderColor: "#0A0A0F" }}>
-                      {p.user?.name?.[0]?.toUpperCase() || "?"}
+                      {p.user?.login?.[0]?.toUpperCase() || "?"}
                     </div>
                   ))}
                 </div>
@@ -309,9 +309,9 @@ function CreateMatchModal({ onClose, setToast }: { onClose: () => void; setToast
   });
 
   const createMutation = trpc.spirit.createMatch.useMutation({
-    onSuccess: () => {
-      utils.spirit.matchToday.invalidate();
-      utils.spirit.matchUpcoming.invalidate();
+    onSuccess: async () => {
+      await utils.spirit.matchToday.invalidate();
+      await utils.spirit.matchUpcoming.invalidate();
       onClose();
     },
     onError: (err) => {
@@ -325,7 +325,7 @@ function CreateMatchModal({ onClose, setToast }: { onClose: () => void; setToast
     createMutation.mutate({
       matchType: form.matchType,
       location: form.location,
-      matchDate: form.matchDate,
+      matchDate: new Date(form.matchDate).toISOString(),
       maxPlayers: Number(form.maxPlayers) || 10,
       notes: form.notes || undefined,
     });

@@ -35,6 +35,19 @@ export default function Habitat() {
   const queryInput = filter === "mine" ? { mine: true } : filter !== "all" ? { status: filter as "open" } : undefined;
   const { data: posts, isLoading } = trpc.habitat.list.useQuery(queryInput);
 
+  const createMutation = trpc.habitat.create.useMutation({
+    onSuccess: async () => {
+      await utils.habitat.list.invalidate();
+      setShowCreate(false);
+      setToast({ message: "Post created successfully!", type: "success" });
+      setTimeout(() => setToast(null), 3000);
+    },
+    onError: (err) => {
+      setToast({ message: err.message, type: "error" });
+      setTimeout(() => setToast(null), 3000);
+    },
+  });
+
   const sendRequestMutation = trpc.habitat.sendRequest.useMutation({
     onSuccess: (data) => {
       setToast({ message: data.message, type: "success" });
@@ -183,9 +196,9 @@ export default function Habitat() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
                     style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                    {post.user?.name?.[0]?.toUpperCase() || "?"}
+                    {post.user?.login?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{post.user?.name}</span>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{post.user?.login}</span>
                 </div>
 
                 {/* Actions */}
@@ -210,9 +223,9 @@ export default function Habitat() {
                                   <div className="flex items-center gap-2 mb-1">
                                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white"
                                       style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                                      {req.user?.name?.[0]?.toUpperCase() || "?"}
+                                      {req.user?.login?.[0]?.toUpperCase() || "?"}
                                     </div>
-                                    <span className="text-sm text-foreground truncate">{req.user?.name}</span>
+                                    <span className="text-sm text-foreground truncate">{req.user?.login}</span>
                                   </div>
                                   {req.message && <p className="text-xs truncate" style={{ color: "hsl(var(--foreground) / 0.5)" }}>{req.message}</p>}
                                 </div>
@@ -291,30 +304,36 @@ export default function Habitat() {
       )}
 
       <AnimatePresence>
-        {showCreate && <CreateHabitatModal onClose={() => setShowCreate(false)} />}
+        {showCreate && (
+          <CreateHabitatModal
+            onClose={() => setShowCreate(false)}
+            onSubmit={(data) => createMutation.mutate(data)}
+            isPending={createMutation.isPending}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
 }
 
-function CreateHabitatModal({ onClose }: { onClose: () => void }) {
-  const utils = trpc.useUtils();
+function CreateHabitatModal({
+  onClose,
+  onSubmit,
+  isPending,
+}: {
+  onClose: () => void;
+  onSubmit: (data: { title: string; description: string; address: string; rentPerPerson: number; spotsAvailable: number; tags: string; rules: string }) => void;
+  isPending: boolean;
+}) {
   const [form, setForm] = useState({
     title: "", description: "", address: "", rentPerPerson: "",
     spotsAvailable: "", tags: "", rules: "",
   });
 
-  const createMutation = trpc.habitat.create.useMutation({
-    onSuccess: () => {
-      utils.habitat.list.invalidate();
-      onClose();
-    },
-  });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title || !form.description || !form.address || !form.rentPerPerson || !form.spotsAvailable || !form.rules) return;
-    createMutation.mutate({
+    onSubmit({
       title: form.title,
       description: form.description,
       address: form.address,
@@ -369,10 +388,10 @@ function CreateHabitatModal({ onClose }: { onClose: () => void }) {
             <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>House Rules</label>
             <textarea value={form.rules} onChange={(e) => setForm({ ...form, rules: e.target.value })} className={`${inputClass} h-20 py-2 resize-none`} style={inputStyle} placeholder="What are your house rules?" />
           </div>
-          <button type="submit" disabled={createMutation.isPending}
+          <button type="submit" disabled={isPending}
             className="w-full h-11 rounded-xl text-sm font-medium transition-all hover:shadow-lg disabled:opacity-40"
             style={{ background: "#FDCB6E", color: "#0A0A0F" }}>
-            {createMutation.isPending ? "Posting..." : "Post Your Place"}
+            {isPending ? "Posting..." : "Post Your Place"}
           </button>
         </form>
       </motion.div>

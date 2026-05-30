@@ -6,8 +6,9 @@ import {
   pulseFoodBookings,
   pulseEvents,
   pulseEventAttendees,
+  users,
 } from "@db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 export const pulseRouter = createRouter({
   foodList: authedQuery
@@ -30,19 +31,49 @@ export const pulseRouter = createRouter({
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const posts = await db.query.pulseFoodPosts.findMany({
-        where,
-        with: {
-          user: true,
-          bookings: { with: { user: true } },
-        },
-        orderBy: [desc(pulseFoodPosts.createdAt)],
-      });
+      const posts = where
+        ? await db.select().from(pulseFoodPosts).where(where).orderBy(desc(pulseFoodPosts.createdAt))
+        : await db.select().from(pulseFoodPosts).orderBy(desc(pulseFoodPosts.createdAt));
 
-      return posts.map((post) => ({
-        ...post,
-        _count: { bookings: post.bookings.length },
-      }));
+      if (posts.length === 0) return [];
+
+      const postIds = posts.map((p) => p.id);
+      const postUserIds = [...new Set(posts.map((p) => p.userId))];
+
+      const postUsers = postUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, postUserIds))
+        : [];
+
+      const allBookings = postIds.length > 0
+        ? await db.select().from(pulseFoodBookings).where(inArray(pulseFoodBookings.postId, postIds))
+        : [];
+
+      const bookingUserIds = [...new Set(allBookings.map((b) => b.userId))];
+      const bookingUsers = bookingUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, bookingUserIds))
+        : [];
+
+      const userMap = new Map(postUsers.concat(bookingUsers).map((u) => [u.id, u]));
+
+      return posts.map((post) => {
+        const postUser = userMap.get(post.userId);
+        const postBookings = allBookings
+          .filter((b) => b.postId === post.id)
+          .map((booking) => {
+            const bUser = userMap.get(booking.userId);
+            return {
+              ...booking,
+              user: bUser ? { ...bUser, avatarUrl: bUser.avatarUrl || null } : null,
+            };
+          });
+
+        return {
+          ...post,
+          user: postUser ? { ...postUser, avatarUrl: postUser.avatarUrl || null } : null,
+          bookings: postBookings,
+          _count: { bookings: postBookings.length },
+        };
+      });
     }),
 
   foodCreate: authedQuery
@@ -179,20 +210,50 @@ export const pulseRouter = createRouter({
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const events = await db.query.pulseEvents.findMany({
-        where,
-        with: {
-          user: true,
-          attendees: { with: { user: true } },
-        },
-        orderBy: [desc(pulseEvents.eventDate)],
-      });
+      const events = where
+        ? await db.select().from(pulseEvents).where(where).orderBy(desc(pulseEvents.eventDate))
+        : await db.select().from(pulseEvents).orderBy(desc(pulseEvents.eventDate));
 
-      return events.map((event) => ({
-        ...event,
-        _count: { attendees: event.attendees.length },
-        isAttending: event.attendees.some((a) => a.userId === ctx.user.id),
-      }));
+      if (events.length === 0) return [];
+
+      const eventIds = events.map((e) => e.id);
+      const eventUserIds = [...new Set(events.map((e) => e.userId))];
+
+      const eventUsers = eventUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, eventUserIds))
+        : [];
+
+      const allAttendees = eventIds.length > 0
+        ? await db.select().from(pulseEventAttendees).where(inArray(pulseEventAttendees.eventId, eventIds))
+        : [];
+
+      const attendeeUserIds = [...new Set(allAttendees.map((a) => a.userId))];
+      const attendeeUsers = attendeeUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, attendeeUserIds))
+        : [];
+
+      const userMap = new Map(eventUsers.concat(attendeeUsers).map((u) => [u.id, u]));
+
+      return events.map((event) => {
+        const eventUser = userMap.get(event.userId);
+        const eventAttendees = allAttendees
+          .filter((a) => a.eventId === event.id)
+          .map((attendee) => {
+            const aUser = userMap.get(attendee.userId);
+            return {
+              ...attendee,
+              user: aUser ? { ...aUser, avatarUrl: aUser.avatarUrl || null } : null,
+            };
+          });
+
+        return {
+          ...event,
+          user: eventUser ? { ...eventUser, avatarUrl: eventUser.avatarUrl || null } : null,
+          attendees: eventAttendees,
+          _count: { attendees: eventAttendees.length },
+          isAttending: eventAttendees.some((a) => a.userId === ctx.user.id),
+        };
+      });
     }),
 
   eventCreate: authedQuery

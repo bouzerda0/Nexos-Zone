@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { createRouter, authedQuery } from "../middleware";
 import { getDb } from "../queries/connection";
-import { habitatPosts, habitatRequests } from "@db/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { habitatPosts, habitatRequests, users } from "@db/schema";
+import { eq, and, desc, inArray } from "drizzle-orm";
 
 export const habitatRouter = createRouter({
   list: authedQuery
@@ -26,29 +26,54 @@ export const habitatRouter = createRouter({
 
       const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-      const posts = await db.query.habitatPosts.findMany({
-        where,
-        with: {
-          user: true,
-          requests: {
-            with: { user: true },
-          },
-        },
-        orderBy: [desc(habitatPosts.createdAt)],
-      });
+      // Use plain select queries to avoid LATERAL JOIN / correlated subquery
+      // issues with MariaDB 10.x
+      const posts = where
+        ? await db.select().from(habitatPosts).where(where).orderBy(desc(habitatPosts.createdAt))
+        : await db.select().from(habitatPosts).orderBy(desc(habitatPosts.createdAt));
+
+      if (posts.length === 0) return [];
+
+      // Fetch all related users for these posts
+      const postIds = posts.map((p) => p.id);
+      const postUserIds = [...new Set(posts.map((p) => p.userId))];
+
+      const postUsers = postUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, postUserIds))
+        : [];
+
+      // Fetch all requests for these posts
+      const allRequests = postIds.length > 0
+        ? await db.select().from(habitatRequests).where(inArray(habitatRequests.postId, postIds))
+        : [];
+
+      // Fetch users for all requests
+      const requestUserIds = [...new Set(allRequests.map((r) => r.userId))];
+      const requestUsers = requestUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, requestUserIds))
+        : [];
+
+      // Build lookup maps
+      const userMap = new Map(postUsers.concat(requestUsers).map((u) => [u.id, u]));
 
       return posts.map((post) => {
-        const myRequest = post.requests.find(
+        const postRequests = allRequests
+          .filter((r) => r.postId === post.id)
+          .map((r) => ({ ...r, user: userMap.get(r.userId) || null }));
+
+        const myRequest = postRequests.find(
           (r) => r.userId === ctx.user.id
         );
-        const acceptedCount = post.requests.filter(
+        const acceptedCount = postRequests.filter(
           (r) => r.status === "accepted"
         ).length;
         return {
           ...post,
+          user: userMap.get(post.userId) || null,
+          requests: postRequests,
           _count: {
-            requests: post.requests.length,
-            pendingRequests: post.requests.filter((r) => r.status === "pending")
+            requests: postRequests.length,
+            pendingRequests: postRequests.filter((r) => r.status === "pending")
               .length,
             accepted: acceptedCount,
           },
@@ -61,15 +86,23 @@ export const habitatRouter = createRouter({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = getDb();
-      const post = await db.query.habitatPosts.findFirst({
-        where: eq(habitatPosts.id, input.id),
-        with: {
-          user: true,
-          requests: { with: { user: true } },
-        },
-      });
+      const [post] = await db.select().from(habitatPosts).where(eq(habitatPosts.id, input.id));
       if (!post) throw new Error("Post not found");
-      return post;
+
+      const [postUser] = await db.select().from(users).where(eq(users.id, post.userId));
+
+      const requests = await db.select().from(habitatRequests).where(eq(habitatRequests.postId, post.id));
+      const requestUserIds = [...new Set(requests.map((r) => r.userId))];
+      const reqUsers = requestUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, requestUserIds))
+        : [];
+      const userMap = new Map(reqUsers.map((u) => [u.id, u]));
+
+      return {
+        ...post,
+        user: postUser || null,
+        requests: requests.map((r) => ({ ...r, user: userMap.get(r.userId) || null })),
+      };
     }),
 
   create: authedQuery

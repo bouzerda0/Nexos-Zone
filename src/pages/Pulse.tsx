@@ -159,9 +159,9 @@ function FoodOrdersTab({ setToast }: { setToast: (t: { message: string; type: "s
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
                     style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                    {post.user?.name?.[0]?.toUpperCase() || "?"}
+                    {post.user?.login?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{post.user?.name}</span>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{post.user?.login}</span>
                 </div>
                 {/* Progress bar */}
                 <div className="mb-3">
@@ -268,9 +268,9 @@ function EventsTab({ setToast }: { setToast: (t: { message: string; type: "succe
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
                     style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                    {event.user?.name?.[0]?.toUpperCase() || "?"}
+                    {event.user?.login?.[0]?.toUpperCase() || "?"}
                   </div>
-                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{event.user?.name}</span>
+                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{event.user?.login}</span>
                 </div>
                 {isAttending ? (
                   <button onClick={() => leaveMutation.mutate({ eventId: event.id })}
@@ -305,10 +305,10 @@ function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => voi
   const [eventForm, setEventForm] = useState({ title: "", description: "", eventType: "movie" as const, location: "", eventDate: "", maxAttendees: "" });
 
   const foodMutation = trpc.pulse.foodCreate.useMutation({
-    onSuccess: () => { utils.pulse.foodList.invalidate(); onClose(); },
+    onSuccess: async () => { await utils.pulse.foodList.invalidate(); onClose(); },
   });
   const eventMutation = trpc.pulse.eventCreate.useMutation({
-    onSuccess: () => { utils.pulse.eventList.invalidate(); onClose(); },
+    onSuccess: async () => { await utils.pulse.eventList.invalidate(); onClose(); },
   });
 
   const handleFoodSubmit = (e: React.FormEvent) => {
@@ -318,7 +318,7 @@ function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => voi
       restaurantName: foodForm.restaurantName,
       menuItems: foodForm.menuItems,
       deliveryFee: Number(foodForm.deliveryFee) || 0,
-      orderDeadline: foodForm.orderDeadline,
+      orderDeadline: new Date(foodForm.orderDeadline).toISOString(),
     });
   };
 
@@ -330,7 +330,7 @@ function CreatePulseModal({ type, onClose }: { type: TabType; onClose: () => voi
       description: eventForm.description,
       eventType: eventForm.eventType,
       location: eventForm.location,
-      eventDate: eventForm.eventDate,
+      eventDate: new Date(eventForm.eventDate).toISOString(),
       maxAttendees: eventForm.maxAttendees ? Number(eventForm.maxAttendees) : null,
     });
   };

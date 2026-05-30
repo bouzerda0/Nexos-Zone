@@ -2,8 +2,8 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createRouter, authedQuery } from "../middleware";
 import { getDb } from "../queries/connection";
-import { transitPosts, transitBookings } from "@db/schema";
-import { eq, and, desc, sql } from "drizzle-orm";
+import { transitPosts, transitBookings, users } from "@db/schema";
+import { eq, and, desc, sql, inArray } from "drizzle-orm";
 
 export const transitRouter = createRouter({
   list: authedQuery
@@ -31,32 +31,49 @@ export const transitRouter = createRouter({
 
         const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-        const posts = await db.query.transitPosts.findMany({
-          where,
-          with: {
-            user: true,
-            bookings: {
-              with: { user: true },
-            },
-          },
-          orderBy: [desc(transitPosts.createdAt)],
-        });
+        const posts = where
+          ? await db.select().from(transitPosts).where(where).orderBy(desc(transitPosts.createdAt))
+          : await db.select().from(transitPosts).orderBy(desc(transitPosts.createdAt));
 
-        return posts.map((post) => ({
-          ...post,
-          user: post.user ? {
-            ...post.user,
-            avatarUrl: post.user.avatarUrl || null,
-          } : null,
-          bookings: post.bookings.map((booking) => ({
-            ...booking,
-            user: booking.user ? {
-              ...booking.user,
-              avatarUrl: booking.user.avatarUrl || null,
-            } : null,
-          })),
-          _count: { bookings: post.bookings.length },
-        }));
+        if (posts.length === 0) return [];
+
+        const postIds = posts.map(p => p.id);
+        const postUserIds = [...new Set(posts.map(p => p.userId))];
+
+        const postUsers = postUserIds.length > 0 
+          ? await db.select().from(users).where(inArray(users.id, postUserIds))
+          : [];
+
+        const allBookings = postIds.length > 0
+          ? await db.select().from(transitBookings).where(inArray(transitBookings.postId, postIds))
+          : [];
+
+        const bookingUserIds = [...new Set(allBookings.map(b => b.userId))];
+        const bookingUsers = bookingUserIds.length > 0
+          ? await db.select().from(users).where(inArray(users.id, bookingUserIds))
+          : [];
+
+        const userMap = new Map(postUsers.concat(bookingUsers).map(u => [u.id, u]));
+
+        return posts.map((post) => {
+          const postUser = userMap.get(post.userId);
+          const postBookings = allBookings
+            .filter((b) => b.postId === post.id)
+            .map((booking) => {
+              const bUser = userMap.get(booking.userId);
+              return {
+                ...booking,
+                user: bUser ? { ...bUser, avatarUrl: bUser.avatarUrl || null } : null,
+              };
+            });
+
+          return {
+            ...post,
+            user: postUser ? { ...postUser, avatarUrl: postUser.avatarUrl || null } : null,
+            bookings: postBookings,
+            _count: { bookings: postBookings.length },
+          };
+        });
       } catch (error) {
         console.error("Error in transit.list:", error);
         throw new TRPCError({
@@ -71,17 +88,29 @@ export const transitRouter = createRouter({
     .input(z.object({ id: z.number() }))
     .query(async ({ input }) => {
       const db = getDb();
-      const post = await db.query.transitPosts.findFirst({
-        where: eq(transitPosts.id, input.id),
-        with: {
-          user: true,
-          bookings: { with: { user: true } },
-        },
-      });
+      const [post] = await db.select().from(transitPosts).where(eq(transitPosts.id, input.id));
       if (!post) throw new Error("Post not found");
+
+      const [postUser] = await db.select().from(users).where(eq(users.id, post.userId));
+
+      const bookings = await db.select().from(transitBookings).where(eq(transitBookings.postId, post.id));
+      const bookingUserIds = [...new Set(bookings.map((b) => b.userId))];
+      const bUsers = bookingUserIds.length > 0
+        ? await db.select().from(users).where(inArray(users.id, bookingUserIds))
+        : [];
+      const userMap = new Map(bUsers.map((u) => [u.id, u]));
+
       return {
         ...post,
-        _count: { bookings: post.bookings.length },
+        user: postUser ? { ...postUser, avatarUrl: postUser.avatarUrl || null } : null,
+        bookings: bookings.map((b) => {
+          const u = userMap.get(b.userId);
+          return {
+            ...b,
+            user: u ? { ...u, avatarUrl: u.avatarUrl || null } : null,
+          };
+        }),
+        _count: { bookings: bookings.length },
       };
     }),
 
