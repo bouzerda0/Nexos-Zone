@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MatchCard } from "@/components/MatchCard";
 import { Link } from "react-router";
 import { trpc } from "@/providers/trpc";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +16,8 @@ import {
   Check,
   TrophyIcon,
   CircleDot,
+  Info,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { useTheme } from "@/components/ThemeProvider";
@@ -186,45 +189,46 @@ export default function SpiritArena() {
                 <span className="text-xs px-2 py-1 rounded-md" style={{ background: "rgba(52,211,153,0.1)", color: "#34d399" }}>Scheduled</span>
               </div>
 
-              <div className="flex flex-col gap-2" style={{ color: "hsl(var(--foreground) / 0.7)" }}>
-                <div className="flex items-center gap-2 text-sm"><MapPin size={14} />{todayMatch.location}</div>
-                <div className="flex items-center gap-2 text-sm"><Clock size={14} />{format(new Date(todayMatch.matchDate), "h:mm a")}</div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Users size={14} />
+              {/* VERSUS LAYOUT */}
+              <div className="flex justify-between items-center w-full py-6 px-2 md:px-6">
+                {/* Team A */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 bg-slate-800 dark:bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 shadow-lg text-2xl font-bold text-slate-300">
+                    {(todayMatch as any).teamA ? (todayMatch as any).teamA.charAt(0).toUpperCase() : '?'}
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mt-3">{(todayMatch as any).teamA || 'TBA'}</h3>
+                </div>
+
+                {/* VS Badge */}
+                <div className="bg-teal-500/10 dark:bg-teal-500/20 text-teal-600 dark:text-teal-400 border border-teal-500/30 rounded-full px-4 py-2 font-black text-xl italic shadow-sm dark:shadow-[0_0_15px_rgba(20,184,166,0.2)]">
+                  VS
+                </div>
+
+                {/* Team B */}
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-16 bg-slate-800 dark:bg-slate-900 rounded-full flex items-center justify-center border border-slate-700 shadow-lg text-2xl font-bold text-slate-300">
+                    {(todayMatch as any).teamB ? (todayMatch as any).teamB.charAt(0).toUpperCase() : '?'}
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mt-3">{(todayMatch as any).teamB || 'TBA'}</h3>
+                </div>
+              </div>
+
+              {/* MATCH DETAILS ROW */}
+              <div className="flex flex-wrap items-center gap-4 md:gap-6 text-sm text-slate-600 dark:text-slate-400 justify-center bg-slate-100 dark:bg-slate-800/30 py-3 px-4 rounded-xl mt-2 border border-slate-200 dark:border-slate-700/50">
+                <div className="flex items-center gap-2"><MapPin size={16} className="text-slate-500" />{todayMatch.location}</div>
+                <div className="flex items-center gap-2"><Clock size={16} className="text-slate-500" />{format(new Date(todayMatch.matchDate), "h:mm a")}</div>
+                <div className="flex items-center gap-2">
+                  <Users size={16} className="text-slate-500" />
                   {todayMatch._count?.players ?? todayMatch.players?.length ?? 0}/{todayMatch.maxPlayers} players
                 </div>
               </div>
 
-              {/* Organizer */}
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                  style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)" }}>
-                  {todayMatch.user?.login?.[0]?.toUpperCase() || "?"}
-                </div>
-                <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.7)" }}>{todayMatch.user?.login}</span>
-              </div>
-
-              {/* Players avatars */}
-              <div className="flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {todayMatch.players?.slice(0, 6).map((p, i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-semibold text-white"
-                      style={{ background: "linear-gradient(135deg, #6C5CE7, #A29BFE)", borderColor: "#0A0A0F" }}>
-                      {p.user?.login?.[0]?.toUpperCase() || "?"}
-                    </div>
-                  ))}
-                </div>
-                {(todayMatch.players?.length ?? 0) > 6 && (
-                  <span className="text-xs" style={{ color: "hsl(var(--foreground) / 0.5)" }}>+{(todayMatch.players?.length ?? 0) - 6} more</span>
-                )}
-              </div>
-
               {todayMatch.notes && (
-                <p className="text-xs italic" style={{ color: "hsl(var(--foreground) / 0.4)" }}>{todayMatch.notes}</p>
+                <p className="text-xs italic text-center mt-2 text-slate-500 dark:text-slate-400">"{todayMatch.notes}"</p>
               )}
 
               {/* Actions */}
-              <div className="flex gap-2 mt-2">
+              <div className="flex gap-2 mt-4">
                 {isMatchPlayer ? (
                   <button onClick={() => leaveMutation.mutate({ matchId: todayMatch.id })}
                     className="flex-1 h-10 rounded-xl text-sm font-medium transition-all"
@@ -271,20 +275,18 @@ export default function SpiritArena() {
           <h3 className="text-base font-semibold text-foreground mb-4">Upcoming Matches</h3>
           <div className="flex flex-col gap-2">
             {upcomingMatches.map((match) => (
-              <div key={match.id} className="flex items-center justify-between px-4 py-3 rounded-lg" style={{ background: "hsl(var(--foreground) / 0.03)" }}>
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-semibold uppercase px-2 py-0.5 rounded"
-                    style={{ background: match.matchType === "football" ? "rgba(52,211,153,0.1)" : "rgba(108,92,231,0.1)",
-                      color: match.matchType === "football" ? "#34d399" : "#A29BFE" }}>
-                    {match.matchType}
-                  </span>
-                  <span className="text-sm text-foreground">{format(new Date(match.matchDate), "MMM d")}</span>
-                  <span className="text-sm" style={{ color: "hsl(var(--foreground) / 0.5)" }}>{match.location}</span>
-                </div>
-                <span className="text-xs" style={{ color: "hsl(var(--foreground) / 0.4)" }}>
-                  {match._count?.players ?? match.players?.length ?? 0}/{match.maxPlayers} players
-                </span>
-              </div>
+              <MatchCard
+                key={match.id}
+                id={match.id}
+                matchType={match.matchType}
+                matchDate={match.matchDate}
+                location={match.location}
+                teamA={(match as any).teamA}
+                teamB={(match as any).teamB}
+                currentPlayers={match._count?.players ?? match.players?.length ?? 0}
+                maxPlayers={match.maxPlayers}
+                description={match.notes ?? undefined}
+              />
             ))}
           </div>
         </div>
@@ -302,6 +304,8 @@ function CreateMatchModal({ onClose, setToast }: { onClose: () => void; setToast
   const { theme } = useTheme();
   const [form, setForm] = useState({
     matchType: "football" as "football" | "basketball",
+    teamA: "",
+    teamB: "",
     location: "",
     matchDate: "",
     maxPlayers: "10",
@@ -321,71 +325,98 @@ function CreateMatchModal({ onClose, setToast }: { onClose: () => void; setToast
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.location || !form.matchDate) return;
+    if (!form.location || !form.matchDate || !form.teamA || !form.teamB) return;
     createMutation.mutate({
       matchType: form.matchType,
       location: form.location,
       matchDate: new Date(form.matchDate).toISOString(),
       maxPlayers: Number(form.maxPlayers) || 10,
       notes: form.notes || undefined,
+      // @ts-expect-error adding team fields to backend later
+      teamA: form.teamA,
+      // @ts-expect-error adding team fields to backend later
+      teamB: form.teamB,
     });
   };
 
-  const inputClass = "w-full h-10 rounded-lg px-3 text-sm text-foreground outline-none";
-  const inputStyle = { background: "hsl(var(--foreground) / 0.06)", border: "1px solid hsl(var(--foreground) / 0.08)" };
+  const inputClass = "w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 text-slate-900 dark:text-white focus:ring-2 focus:ring-teal-500 outline-none transition-all";
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }} onClick={onClose}>
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+      onClick={onClose}>
       <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-        className="glass-modal w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+        className="w-full max-w-md bg-white dark:bg-slate-900/90 dark:backdrop-blur-xl border border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
+        
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-foreground">Create Match</h2>
-          <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
+          <div className="flex items-center gap-2">
+            <Trophy className="w-5 h-5 text-teal-500" />
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Create Match</h2>
+          </div>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+            <X size={20} />
+          </button>
         </div>
 
-        <div className="mb-4 p-3 rounded-lg text-xs" style={{ background: "rgba(85,239,196,0.08)", color: "#55EFC4", border: "1px solid rgba(85,239,196,0.2)" }}>
-          Only one match per day is allowed. If a match already exists for the selected date, you won't be able to create a new one.
+        <div className="mb-6 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 p-3 rounded-lg flex gap-3 text-sm border border-blue-100 dark:border-blue-500/20">
+          <Info className="w-5 h-5 shrink-0 mt-0.5" />
+          <p>Only one match per day is allowed. If a match already exists for the selected date, you won't be able to create a new one.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Match Type Selector */}
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Match Type</label>
-            <div className="flex gap-2">
+            <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Match Type</label>
+            <div className="flex p-1 gap-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
               {(["football", "basketball"] as const).map((t) => (
                 <button key={t} type="button" onClick={() => setForm({ ...form, matchType: t })}
-                  className="flex-1 h-10 rounded-lg text-sm font-medium transition-all"
-                  style={{
-                    background: form.matchType === t ? "rgba(85,239,196,0.2)" : "hsl(var(--foreground) / 0.06)",
-                    border: `1px solid ${form.matchType === t ? "rgba(85,239,196,0.4)" : "hsl(var(--foreground) / 0.08)"}`,
-                    color: form.matchType === t ? "#55EFC4" : "hsl(var(--foreground) / 0.6)",
-                  }}>
+                  className={`flex-1 h-9 rounded-lg text-sm font-medium transition-all ${
+                    form.matchType === t 
+                    ? "bg-white dark:bg-slate-700 shadow-sm text-teal-600 dark:text-teal-400 border border-slate-200 dark:border-slate-600" 
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 border border-transparent"
+                  }`}>
                   {t.charAt(0).toUpperCase() + t.slice(1)}
                 </button>
               ))}
             </div>
           </div>
-          <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Location</label>
-            <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className={inputClass} style={inputStyle} placeholder="Where will the match be played?" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Team A Name</label>
+              <input type="text" value={form.teamA} onChange={(e) => setForm({ ...form, teamA: e.target.value })} className={inputClass} placeholder="e.g. Red Team" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Team B Name</label>
+              <input type="text" value={form.teamB} onChange={(e) => setForm({ ...form, teamB: e.target.value })} className={inputClass} placeholder="e.g. Blue Team" />
+            </div>
           </div>
+
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Match Date & Time</label>
-            <input type="datetime-local" value={form.matchDate} onChange={(e) => setForm({ ...form, matchDate: e.target.value })} className={inputClass} style={{ ...inputStyle, colorScheme: theme === "dark" ? "dark" : "light" }} />
+            <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Location</label>
+            <input type="text" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className={inputClass} placeholder="e.g. Campus Stadium" />
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Match Date & Time</label>
+              <input type="datetime-local" value={form.matchDate} onChange={(e) => setForm({ ...form, matchDate: e.target.value })} className={`${inputClass} min-h-[42px]`} style={{ colorScheme: theme === "dark" ? "dark" : "light" }} />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Max Players</label>
+              <input type="number" value={form.maxPlayers} onChange={(e) => setForm({ ...form, maxPlayers: e.target.value })} className={inputClass} min={2} max={22} />
+            </div>
+          </div>
+
           <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Max Players</label>
-            <input type="number" value={form.maxPlayers} onChange={(e) => setForm({ ...form, maxPlayers: e.target.value })} className={inputClass} style={inputStyle} min={2} max={22} />
+            <label className="text-sm font-medium mb-2 block text-slate-700 dark:text-slate-300">Notes (optional)</label>
+            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={`${inputClass} h-24 resize-none`} placeholder="Any additional info..." />
           </div>
-          <div>
-            <label className="text-sm font-medium mb-2 block" style={{ color: "hsl(var(--foreground) / 0.7)" }}>Notes (optional)</label>
-            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className={`${inputClass} h-20 py-2 resize-none`} style={inputStyle} placeholder="Any additional info..." />
-          </div>
-          <button type="submit" disabled={createMutation.isPending || !form.location || !form.matchDate}
-            className="w-full h-11 rounded-xl text-sm font-medium transition-all disabled:opacity-40"
-            style={{ background: "#55EFC4", color: "#0A0A0F" }}>
-            {createMutation.isPending ? "Creating..." : "Create Match"}
+
+          <button type="submit" disabled={createMutation.isPending || !form.location || !form.matchDate || !form.teamA || !form.teamB}
+            className="w-full bg-teal-500 hover:bg-teal-600 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+            {createMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+            {createMutation.isPending ? "Creating Match..." : "Create Match"}
           </button>
         </form>
       </motion.div>

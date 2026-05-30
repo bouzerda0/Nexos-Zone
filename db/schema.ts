@@ -251,6 +251,8 @@ export const arenaMatches = mysqlTable("arena_matches", {
   id: bigint("id", { mode: "number", unsigned: true }).autoincrement().primaryKey(),
   userId: bigint("userId", { mode: "number", unsigned: true }).notNull(),
   matchType: mysqlEnum("matchType", ["football", "basketball"]).notNull(),
+  teamA: varchar("teamA", { length: 255 }),
+  teamB: varchar("teamB", { length: 255 }),
   location: varchar("location", { length: 255 }).notNull(),
   matchDate: timestamp("matchDate").notNull(),
   maxPlayers: int("maxPlayers").notNull().default(10),

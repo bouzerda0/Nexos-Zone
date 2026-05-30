@@ -168,6 +168,8 @@ export const spiritRouter = createRouter({
         matchDate: z.string().datetime(),
         maxPlayers: z.number().min(2).max(22),
         notes: z.string().optional(),
+        teamA: z.string().min(1),
+        teamB: z.string().min(1),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -206,6 +208,8 @@ export const spiritRouter = createRouter({
         matchDate: matchDateObj,
         maxPlayers: input.maxPlayers,
         notes: input.notes || null,
+        teamA: input.teamA,
+        teamB: input.teamB,
       });
 
       const insertedId = Number(result[0]?.insertId ?? 0);
