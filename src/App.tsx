@@ -111,7 +111,7 @@ export default function App() {
         }
       />
       <Route
-        path="/zone01-profile"
+        path="/profile/:login"
         element={
           <ProtectedRoute>
             <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-10 h-10 rounded-full border-2 border-transparent animate-spin" style={{ borderTopColor: "#00B4D8" }} /></div>}>

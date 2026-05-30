@@ -5,8 +5,6 @@ import {
   GraduationCap,
   TrendingUp,
   Zap,
-  Lock,
-  Eye,
   EyeOff,
   ArrowLeft,
   Loader2,
@@ -14,8 +12,7 @@ import {
   Trophy,
   CalendarDays,
 } from "lucide-react";
-import { Link } from "react-router";
-import { useTheme } from "@/components/ThemeProvider";
+import { Link, useParams } from "react-router";
 
 // ── XP level calculation ─────────────────────────────────────────────
 function computeLevel(xp: number): { level: number; progress: number } {
@@ -61,182 +58,7 @@ function AnimatedXpCounter({ value }: { value: number }) {
   return <span ref={ref}>{text}</span>;
 }
 
-// ── Credential Form (glassmorphic) ───────────────────────────────────
-function CredentialForm({
-  onSubmit,
-  isLoading,
-  error,
-}: {
-  onSubmit: (id: string, pw: string) => void;
-  isLoading: boolean;
-  error: string | null;
-}) {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPw, setShowPw] = useState(false);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-      className="w-full max-w-md mx-auto"
-    >
-      <div
-        className="p-8 rounded-3xl relative overflow-hidden"
-        style={{
-          background: "hsl(var(--foreground) / 0.04)",
-          backdropFilter: "blur(24px)",
-          WebkitBackdropFilter: "blur(24px)",
-          border: "1px solid rgba(0,180,216,0.15)",
-          boxShadow: "0 24px 80px rgba(0,0,0,0.4), inset 0 1px 0 hsl(var(--foreground) / 0.05)",
-        }}
-      >
-        {/* Glow accent */}
-        <div
-          className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
-          style={{
-            background: "radial-gradient(circle, rgba(0,180,216,0.15), transparent 70%)",
-          }}
-        />
-
-        <div className="flex items-center gap-3 mb-6">
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(0,180,216,0.12)" }}
-          >
-            <Lock size={22} color="#00B4D8" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Zone 01 Credentials</h2>
-            <p className="text-xs" style={{ color: "hsl(var(--foreground) / 0.45)" }}>
-              Enter your Intra credentials to fetch your profile
-            </p>
-          </div>
-        </div>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit(identifier, password);
-          }}
-          className="flex flex-col gap-4"
-        >
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
-              Username / Email
-            </label>
-            <input
-              id="zone01-identifier"
-              type="text"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="your-login"
-              autoComplete="username"
-              className="w-full px-4 py-3 rounded-xl text-sm text-foreground placeholder:text-foreground/30 outline-none transition-all duration-200 focus:ring-2"
-              style={{
-                background: "hsl(var(--foreground) / 0.06)",
-                border: "1px solid hsl(var(--foreground) / 0.08)",
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = "rgba(0,180,216,0.5)";
-                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,180,216,0.1)";
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = "";
-                e.currentTarget.style.boxShadow = "";
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-medium" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
-              Password
-            </label>
-            <div className="relative">
-              <input
-                id="zone01-password"
-                type={showPw ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                className="w-full px-4 py-3 pr-11 rounded-xl text-sm text-foreground placeholder:text-foreground/30 outline-none transition-all duration-200"
-                style={{
-                  background: "hsl(var(--foreground) / 0.06)",
-                  border: "1px solid hsl(var(--foreground) / 0.08)",
-                }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(0,180,216,0.5)";
-                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(0,180,216,0.1)";
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "";
-                  e.currentTarget.style.boxShadow = "";
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPw(!showPw)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/70 transition-colors"
-              >
-                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {error && (
-              <motion.p
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="text-sm px-3 py-2 rounded-lg"
-                style={{
-                  color: "#FF6B6B",
-                  background: "rgba(255,107,107,0.08)",
-                  border: "1px solid rgba(255,107,107,0.15)",
-                }}
-              >
-                {error}
-              </motion.p>
-            )}
-          </AnimatePresence>
-
-          <button
-            type="submit"
-            disabled={isLoading || !identifier || !password}
-            className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{
-              background: isLoading
-                ? "rgba(0,180,216,0.3)"
-                : "linear-gradient(135deg, #00B4D8, #0077B6)",
-              boxShadow: isLoading ? "none" : "0 8px 32px rgba(0,180,216,0.25)",
-            }}
-            onMouseEnter={(e) => {
-              if (!isLoading) e.currentTarget.style.transform = "translateY(-1px)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-            }}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 size={16} className="animate-spin" />
-                Fetching profile…
-              </>
-            ) : (
-              <>
-                <Zap size={16} />
-                Fetch My Data
-              </>
-            )}
-          </button>
-        </form>
-      </div>
-    </motion.div>
-  );
-}
 
 // ── Bento Grid Cell wrapper ──────────────────────────────────────────
 function BentoCell({
@@ -274,45 +96,29 @@ function BentoCell({
 }
 
 // ── Main Page Component ──────────────────────────────────────────────
-type ProfileData = {
-  login: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-  totalXp: number;
-  recentTransactions: Array<{
-    amount: number;
-    project: string;
-    createdAt: string;
-  }>;
-};
-
 export default function Zone01Profile() {
-  const [profileData, setProfileData] = useState<ProfileData | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { login } = useParams<{ login: string }>();
   const [imgError, setImgError] = useState(false);
-  const utils = trpc.useUtils();
 
-  const fetchMutation = trpc.zone01.fetchProfile.useMutation({
-    onSuccess: (data) => {
-      setProfileData(data);
-      setError(null);
-      utils.auth.me.invalidate(); // Invalidate global auth to update Header's user state
-    },
-    onError: (err) => {
-      setError(err.message || "Failed to fetch profile");
-    },
-  });
-
-  const handleFetch = (id: string, pw: string) => {
-    setError(null);
-    fetchMutation.mutate({ identifier: id, password: pw });
-  };
+  const { data: profileData, isLoading, error, refetch } = trpc.zone01.getProfile.useQuery(
+    { login: login || "" },
+    { enabled: !!login, retry: false }
+  );
 
   const level = profileData ? computeLevel(profileData.totalXp) : null;
 
-  // ── If data not yet fetched, show credential form ────────────
-  if (!profileData) {
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+        <Loader2 size={48} className="animate-spin mb-4" style={{ color: "#00B4D8" }} />
+        <p className="text-sm" style={{ color: "hsl(var(--foreground) / 0.5)" }}>
+          Loading profile...
+        </p>
+      </div>
+    );
+  }
+
+  if (error || !profileData) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
         <motion.div
@@ -322,34 +128,19 @@ export default function Zone01Profile() {
         >
           <div
             className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
-            style={{ background: "rgba(0,180,216,0.1)" }}
+            style={{ background: "rgba(255,107,107,0.1)" }}
           >
-            <GraduationCap size={32} color="#00B4D8" />
+            <EyeOff size={32} color="#FF6B6B" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Zone 01 Profile
+          <h1 className="text-2xl font-bold text-foreground mb-2">
+            Profile Not Found
           </h1>
-          <p style={{ color: "hsl(var(--foreground) / 0.45)" }} className="text-sm max-w-sm mx-auto">
-            Authenticate with your Zone 01 Intra credentials to view your XP,
-            level, and recent progress.
+          <p style={{ color: "hsl(var(--foreground) / 0.45)" }} className="text-sm max-w-sm mx-auto mb-6">
+            {error?.message || "Could not locate this user in the Nexus database."}
           </p>
-        </motion.div>
-
-        <CredentialForm
-          onSubmit={handleFetch}
-          isLoading={fetchMutation.isPending}
-          error={error}
-        />
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="mt-8"
-        >
           <Link
             to="/hub"
-            className="flex items-center gap-2 text-sm transition-colors hover:text-foreground"
+            className="flex items-center justify-center gap-2 text-sm transition-colors hover:text-foreground mx-auto"
             style={{ color: "hsl(var(--foreground) / 0.4)" }}
           >
             <ArrowLeft size={14} />
@@ -388,11 +179,7 @@ export default function Zone01Profile() {
           </div>
         </div>
         <button
-          onClick={() => {
-            setProfileData(null);
-            setError(null);
-            setImgError(false);
-          }}
+          onClick={() => refetch()}
           className="text-xs px-4 py-2 rounded-xl transition-all duration-200"
           style={{
             background: "hsl(var(--foreground) / 0.06)",

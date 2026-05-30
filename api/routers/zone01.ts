@@ -30,6 +30,127 @@ const PROFILE_AND_XP_QUERY = `
 
 export const zone01Router = createRouter({
   /**
+   * getProfile — Publicly viewable profile query based on the local database.
+   * Returns empty XP and transactions since we no longer demand the intra password.
+   */
+  getProfile: authedQuery
+    .input(z.object({ login: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const db = getDb();
+      const [user] = await db.select().from(users).where(eq(users.login, input.login));
+
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "User not found in Nexus database",
+        });
+      }
+
+      if (!ctx.intraToken) {
+        // Fallback if Intra token is missing (e.g. legacy session or cookie issue)
+        return {
+          login: user.login,
+          firstName: "",
+          lastName: "",
+          avatarUrl: user.avatarUrl,
+          totalXp: 0,
+          recentTransactions: [] as Array<{ amount: number; project: string; createdAt: string }>,
+        };
+      }
+
+      // Fetch real data from GraphQL
+      const PUBLIC_PROFILE_QUERY = `
+        query getPublicProfile($login: String!) {
+          user(where: {login: {_eq: $login}}) {
+            attrs
+            transactions(
+              where: {
+                type: { _eq: "xp" }
+                path: { _nlike: "%piscine%" }
+              }
+              order_by: { createdAt: desc }
+            ) {
+              amount
+              path
+              createdAt
+            }
+          }
+        }
+      `;
+
+      try {
+        const gqlRes = await fetch(`${env.intraDomain}/api/graphql-engine/v1/graphql`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${ctx.intraToken}`,
+          },
+          body: JSON.stringify({
+            query: PUBLIC_PROFILE_QUERY,
+            variables: { login: input.login },
+          }),
+        });
+
+        if (!gqlRes.ok) {
+          throw new Error("Failed to reach Zone01 API");
+        }
+
+        const gqlData = (await gqlRes.json()) as any;
+        
+        if (gqlData.errors) {
+          console.error("GraphQL Error:", gqlData.errors);
+          throw new Error("GraphQL validation failed");
+        }
+
+        const zoneUser = gqlData.data?.user?.[0];
+        
+        if (!zoneUser) {
+           return {
+             login: user.login,
+             firstName: "",
+             lastName: "",
+             avatarUrl: user.avatarUrl,
+             totalXp: 0,
+             recentTransactions: [],
+           };
+        }
+
+        const totalXp = zoneUser.transactions?.reduce(
+          (sum: number, tx: any) => sum + (tx.amount || 0),
+          0
+        ) || 0;
+
+        const recentTransactions = (zoneUser.transactions || [])
+          .slice(0, 10)
+          .map((tx: any) => ({
+            amount: tx.amount,
+            project: tx.path.split("/").pop() || "unknown",
+            createdAt: tx.createdAt,
+          }));
+
+        return {
+          login: user.login,
+          firstName: zoneUser.attrs?.firstName || "",
+          lastName: zoneUser.attrs?.lastName || "",
+          avatarUrl: user.avatarUrl,
+          totalXp,
+          recentTransactions,
+        };
+      } catch (err) {
+        console.error("GraphQL profile fetch error:", err);
+        // Fallback gracefully so the profile still loads
+        return {
+          login: user.login,
+          firstName: "",
+          lastName: "",
+          avatarUrl: user.avatarUrl,
+          totalXp: 0,
+          recentTransactions: [],
+        };
+      }
+    }),
+
+  /**
    * fetchProfile — Authenticates against Zone 01 API, fetches profile + XP.
    * Requires the user's Zone 01 credentials (one-time fetch, JWT is not stored).
    */

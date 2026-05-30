@@ -12,6 +12,7 @@ export type TrpcContext = {
   req: Request;
   resHeaders: Headers;
   user?: User;
+  intraToken?: string;
 };
 
 export async function createContext(
@@ -35,6 +36,10 @@ export async function createContext(
             ctx.user = user;
           }
         }
+      }
+      const intraToken = cookies["intra_token"];
+      if (intraToken) {
+        ctx.intraToken = intraToken;
       }
     }
   } catch (err) {

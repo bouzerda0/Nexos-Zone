@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, Home, Car, Utensils, Activity, Sun, Moon, MessageSquare } from "lucide-react";
+import { LogOut, Home, Car, Utensils, Activity, Sun, Moon, MessageSquare, Fingerprint } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/components/ThemeProvider";
@@ -39,13 +39,23 @@ export default function Header() {
         borderColor: "hsl(var(--border) / 0.5)"
       }}
     >
-      {/* LEFT SIDE: Brand/Logo (Strictly Preserved) */}
-      <div className="flex items-center gap-3 justify-self-start">
-        <Link to="/hub" className="flex items-center gap-2 no-underline font-semibold tracking-tight transition-colors" style={{ color: "hsl(var(--foreground))" }}>
-          <span className="text-xl">NEXUS</span>
-          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: "rgba(108, 92, 231, 0.2)", color: "#A29BFE", fontSize: "11px" }}>
-            Zone 01 Oujda
-          </span>
+      {/* LEFT SIDE: Brand/Logo */}
+      <div className="flex items-center justify-self-start">
+        <Link 
+          to="/hub" 
+          className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity no-underline group"
+        >
+          <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 text-primary-foreground rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 ring-1 ring-foreground/10 group-hover:shadow-primary/50 transition-all duration-300">
+            <Fingerprint className="w-5 h-5" />
+          </div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-[0.2em] uppercase text-transparent bg-clip-text bg-gradient-to-br from-foreground to-foreground/50 drop-shadow-sm m-0">
+              Nexus
+            </h1>
+            <span className="hidden sm:flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold tracking-wider bg-purple-500/10 border border-purple-500/20 text-purple-400 shadow-[0_0_10px_-3px_rgba(168,85,247,0.3)] group-hover:bg-purple-500/20 group-hover:border-purple-500/30 transition-all duration-300 uppercase whitespace-nowrap">
+              Zone 01 Oujda
+            </span>
+          </div>
         </Link>
       </div>
 
@@ -142,7 +152,7 @@ export default function Header() {
         </motion.button>
 
         <Link 
-          to="/zone01-profile" 
+          to={`/profile/${user?.login}`} 
           className="flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all hover:bg-foreground/5 cursor-pointer no-underline"
         >
           <Avatar className="w-8 h-8 border">

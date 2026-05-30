@@ -50,7 +50,7 @@ const modules = [
     description: "Your XP stats & profile",
     icon: GraduationCap,
     accent: "#00B4D8",
-    path: "/zone01-profile",
+    path: "/profile",
   },
 ];
 
@@ -85,7 +85,13 @@ export default function Hub() {
               transition={{ duration: 0.4, delay: index * 0.08 }}
               whileHover={{ y: -8, scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => navigate(module.path)}
+              onClick={() => {
+                if (module.id === "zone01") {
+                  navigate(`/profile/${user?.login || ""}`);
+                } else {
+                  navigate(module.path);
+                }
+              }}
               className="glass-card flex flex-col items-center justify-center gap-4 cursor-pointer transition-all duration-300"
               style={{
                 width: "200px",

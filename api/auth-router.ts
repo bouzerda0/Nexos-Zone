@@ -243,6 +243,17 @@ export const authRouter = createRouter({
         })
       );
 
+      ctx.resHeaders.append(
+        "set-cookie",
+        cookie.serialize("intra_token", jwt, {
+          httpOnly: opts.httpOnly,
+          path: opts.path,
+          sameSite: opts.sameSite?.toLowerCase() as "lax" | "none",
+          secure: opts.secure,
+          maxAge: 30 * 24 * 60 * 60, // 30 days
+        })
+      );
+
       return { success: true, user: localUser };
     }),
 
@@ -251,6 +262,16 @@ export const authRouter = createRouter({
     ctx.resHeaders.append(
       "set-cookie",
       cookie.serialize(Session.cookieName, "", {
+        httpOnly: opts.httpOnly,
+        path: opts.path,
+        sameSite: opts.sameSite?.toLowerCase() as "lax" | "none",
+        secure: opts.secure,
+        maxAge: 0,
+      }),
+    );
+    ctx.resHeaders.append(
+      "set-cookie",
+      cookie.serialize("intra_token", "", {
         httpOnly: opts.httpOnly,
         path: opts.path,
         sameSite: opts.sameSite?.toLowerCase() as "lax" | "none",
